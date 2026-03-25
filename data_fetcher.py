@@ -3,9 +3,10 @@
 对接接口：get_city_profile(city_name_en)
 """
 
-import csv
-import requests
 import json
+import os
+import pandas as pd
+import numpy as np
 from datetime import datetime
 
 
@@ -22,10 +23,18 @@ def get_city_profile(city_name_en):
         live_data = _fetch_live_data(city_name_en)
         
         return {
-            'status': 'success',
+            'status': 'success',  # 成功状态
             'city': city_name_en,
-            'static_data': static_data,
-            'live_data': live_data
+            'static_data': {       # 注意：是 static_data
+                'safety_index': static_data['safety_index'],
+                'health_index': static_data['health_index'],
+                'cost_of_living': static_data['cost_of_living']
+            },
+            'live_data': {
+                'temp': live_data['temp'],
+                'aqi': live_data['aqi'],
+                'weather_desc': live_data['weather_desc']
+            }
         }
         
     except Exception as e:
@@ -50,32 +59,55 @@ def get_city_profile(city_name_en):
 def _load_static_data(city_name_en):
     """
     从 CSV 文件读取城市静态数据（安全指数、健康指数、生活成本）
-    TODO: 从 Kaggle 下载 Numbeo Quality of Life 数据集
-    目前返回 Mock 数据
     """
-    # TODO: 替换为真实 CSV 读取逻辑
-    # with open('data/cities.csv', 'r', encoding='utf-8') as f:
-    #     reader = csv.DictReader(f)
-    #     for row in reader:
-    #         if row['city'] == city_name_en:
-    #             return {
-    #                 'safety_index': float(row['safety_index']),
-    #                 'health_index': float(row['health_index']),
-    #                 'cost_of_living': float(row['cost_of_living'])
-    #             }
+    # CSV 文件路径
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'train_us_new.csv')
     
-    # Mock 数据（供队友联调）
-    mock_data = {
-        'London': {'safety_index': 75.5, 'health_index': 82.1, 'cost_of_living': 88.0},
-        'Shanghai': {'safety_index': 78.5, 'health_index': 85.2, 'cost_of_living': 65.3},
-        'New York': {'safety_index': 68.2, 'health_index': 79.5, 'cost_of_living': 95.0}
-    }
-    
-    return mock_data.get(city_name_en, {
-        'safety_index': 70.0,
-        'health_index': 75.0,
-        'cost_of_living': 70.0
-    })
+    try:
+        # 读取 CSV
+        df = pd.read_csv(csv_path)
+        
+        # 查找匹配的城市（忽略大小写）
+        city_row = df[df['City'].str.lower() == city_name_en.lower()]
+        
+        if not city_row.empty:
+            row = city_row.iloc[0]
+            
+            # 获取数值并转换为 Python 原生类型（解决 JSON 序列化问题）
+            happiness = row.get('Happiness_Score', 70.0)
+            if isinstance(happiness, (np.integer, np.floating)):
+                happiness = float(happiness)
+            
+            health = row.get('Health_Index', 75.0)
+            if isinstance(health, (np.integer, np.floating)):
+                health = float(health)
+            
+            cost = row.get('Cost_of_Living_Index', 70.0)
+            if isinstance(cost, (np.integer, np.floating)):
+                cost = float(cost)
+            
+            return {
+               'safety_index': happiness * 10,  # 用幸福指数替代，缩放到0-100
+                'health_index': health,
+                'cost_of_living': cost
+            }
+        else:
+            # 城市不存在，返回默认值
+            print(f"警告: 未找到城市 '{city_name_en}'，返回默认值")
+            return {
+                'safety_index': 70.0,
+                'health_index': 75.0,
+                'cost_of_living': 70.0
+            }
+            
+    except Exception as e:
+        print(f"读取CSV失败: {e}")
+        # 返回 Mock 数据
+        return {
+            'safety_index': 70.0,
+            'health_index': 75.0,
+            'cost_of_living': 70.0
+        }
 
 
 def _fetch_live_data(city_name_en):
@@ -88,6 +120,7 @@ def _fetch_live_data(city_name_en):
     """
     # TODO: 替换为真实 API 调用
     # try:
+    #     import requests
     #     weather_url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name_en}&appid=YOUR_API_KEY&units=metric"
     #     weather_response = requests.get(weather_url, timeout=5)
     #     weather_data = weather_response.json()
@@ -111,21 +144,36 @@ def _fetch_live_data(city_name_en):
     
     # Mock 数据（供队友联调）
     mock_live_data = {
-        'London': {'temp': 15.2, 'aqi': 45, 'weather_desc': 'Clouds'},
-        'Shanghai': {'temp': 22.0, 'aqi': 65, 'weather_desc': 'Sunny'},
-        'New York': {'temp': 18.5, 'aqi': 38, 'weather_desc': 'Clear'}
+        'london': {'temp': 15.2, 'aqi': 45, 'weather_desc': 'Clouds'},
+        'shanghai': {'temp': 22.0, 'aqi': 65, 'weather_desc': 'Sunny'},
+        'new york': {'temp': 18.5, 'aqi': 38, 'weather_desc': 'Clear'},
+        'beijing': {'temp': 18.0, 'aqi': 120, 'weather_desc': 'Haze'},
+        'tokyo': {'temp': 20.0, 'aqi': 55, 'weather_desc': 'Clear'},
+        'paris': {'temp': 16.0, 'aqi': 42, 'weather_desc': 'Clouds'}
     }
     
-    return mock_live_data.get(city_name_en, {
-        'temp': 20.0,
-        'aqi': 50,
-        'weather_desc': 'Unknown'
-    })
+    city_key = city_name_en.lower()
+    if city_key in mock_live_data:
+        return mock_live_data[city_key]
+    else:
+        return {
+            'temp': 20.0,
+            'aqi': 50,
+            'weather_desc': 'Unknown'
+        }
 
 
 if __name__ == "__main__":
     # 测试代码
-    print("测试数据获取模块...")
-    test_city = "London"
-    result = get_city_profile(test_city)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    print("=" * 50)
+    print("测试数据获取模块")
+    print("=" * 50)
+    
+    # 测试几个城市
+    test_cities = ["London", "Shanghai", "New York", "Beijing"]
+    
+    for city in test_cities:
+        print(f"\n--- 测试城市: {city} ---")
+        result = get_city_profile(city)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print()
