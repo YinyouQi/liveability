@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 自己的应用
+    'liveability',
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
