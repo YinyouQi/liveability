@@ -1,0 +1,31 @@
+{% extends "liveability/base.html" %}  <!-- 注意：这里的 radar_app 要换成 B 实际建的文件夹名 -->
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm text-center">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold text-primary mb-3">探索全球最适合你的城市</h1>
+        <p class="col-md-8 mx-auto fs-4 text-muted mb-5">
+            结合实时气候、空气质量与医疗安全指数，为您生成专属的城市宜居度多维雷达图。
+        </p>
+        
+        <!-- 搜索框区域 -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- 将来这里的 action 要指向 Django 的搜索视图 -->
+                <form action="#" method="get" class="input-group input-group-lg shadow-sm">
+                    <input type="text" name="q" class="form-control border-primary" placeholder="输入城市名称 (如: London, Tokyo)..." required>
+                    <button class="btn btn-primary px-5 fw-bold" type="submit">一键分析</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 热门城市推荐 (可选) -->
+        <div class="mt-5 text-muted">
+            <small>热门搜索：</small>
+            <a href="#" class="badge bg-secondary text-decoration-none mx-1">东京</a>
+            <a href="#" class="badge bg-secondary text-decoration-none mx-1">纽约</a>
+            <a href="#" class="badge bg-secondary text-decoration-none mx-1">新加坡</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
