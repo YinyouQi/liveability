@@ -59,54 +59,39 @@ def get_city_profile(city_name_en):
 def _load_static_data(city_name_en):
     """
     从 CSV 文件读取城市静态数据（安全指数、健康指数、生活成本）
-    合并 train_us_new.csv 和 test_new.csv 两个数据集
+    使用新数据集：livable_cities.csv
     """
     import pandas as pd
     import os
     
-    # 两个 CSV 文件路径
-    csv_path1 = os.path.join(os.path.dirname(__file__), 'data', 'train_us_new.csv')
-    csv_path2 = os.path.join(os.path.dirname(__file__), 'data', 'test_new.csv')
+    # CSV 文件路径
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
     
     try:
-        # 读取两个 CSV 并合并
-        df1 = pd.read_csv(csv_path1)
-        df2 = pd.read_csv(csv_path2)
-        df = pd.concat([df1, df2], ignore_index=True)
-        
-        # 按城市名分组，取最新数据（按 Year 和 Month 排序）
-        # 先创建日期列用于排序
-        month_to_num = {
-            'January': 1, 'February': 2, 'March': 3, 'April': 4,
-            'May': 5, 'June': 6, 'July': 7, 'August': 8,
-            'September': 9, 'October': 10, 'November': 11, 'December': 12
-        }
-        df['Month_Num'] = df['Month'].map(month_to_num)
-        df['Date'] = pd.to_datetime(df['Year'].astype(str) + '-' + df['Month_Num'].astype(str), format='%Y-%m')
-        
-        # 按城市分组，取最新的一条数据
-        df_latest = df.sort_values('Date', ascending=False).groupby('City').first().reset_index()
+        # 读取 CSV
+        df = pd.read_csv(csv_path)
         
         # 查找匹配的城市（忽略大小写）
-        city_row = df_latest[df_latest['City'].str.lower() == city_name_en.lower()]
+        city_row = df[df['City'].str.lower() == city_name_en.lower()]
         
         if not city_row.empty:
             row = city_row.iloc[0]
             
-            happiness = row.get('Happiness_Score', 70.0)
-            if isinstance(happiness, (np.integer, np.floating)):
-                happiness = float(happiness)
+            # 获取各项指标，转换为 float
+            safety = row.get('Safety Index', 70.0)
+            if isinstance(safety, (np.integer, np.floating)):
+                safety = float(safety)
             
-            health = row.get('Health_Index', 75.0)
+            health = row.get('Health Care Index', 75.0)
             if isinstance(health, (np.integer, np.floating)):
                 health = float(health)
             
-            cost = row.get('Cost_of_Living_Index', 70.0)
+            cost = row.get('Cost of Living Index', 70.0)
             if isinstance(cost, (np.integer, np.floating)):
                 cost = float(cost)
             
             return {
-                'safety_index': happiness * 10,
+                'safety_index': safety,
                 'health_index': health,
                 'cost_of_living': cost
             }
@@ -135,9 +120,9 @@ def _fetch_live_data(city_name_en):
     import requests
     
     # OpenWeatherMap API Key
-    WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"
-    # AQICN API Token（从邮件获取）
-    AQI_TOKEN = "670cca4f211cfd77bcdd0e1366c476f50d0cd591"  
+    WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"  # 正确的 Key
+    # AQICN API Token
+    AQI_TOKEN = "670cca4f211cfd77bcdd0e1366c476f50d0cd591"
     
     # 初始化返回数据
     result = {
@@ -163,7 +148,6 @@ def _fetch_live_data(city_name_en):
     # 2. 获取空气质量数据
     if AQI_TOKEN and AQI_TOKEN != "YOUR_AQI_TOKEN_HERE":
         try:
-            # AQICN API 需要城市名
             aqi_url = f"https://api.waqi.info/feed/{city_name_en}/?token={AQI_TOKEN}"
             response = requests.get(aqi_url, timeout=5)
             
@@ -178,7 +162,7 @@ def _fetch_live_data(city_name_en):
         except Exception as e:
             print(f"AQI API 调用失败: {e}")
     else:
-        # 没有配置 AQI Token，使用占位数据
+        # 使用占位数据
         mock_aqi = {
             'london': 45, 'shanghai': 65, 'new york': 38,
             'beijing': 120, 'tokyo': 55, 'paris': 42
@@ -187,6 +171,8 @@ def _fetch_live_data(city_name_en):
         result['aqi'] = mock_aqi.get(city_key, 50)
     
     return result
+
+
 def get_all_cities():
     """
     返回所有城市列表，供前端下拉菜单使用
@@ -194,14 +180,10 @@ def get_all_cities():
     import pandas as pd
     import os
     
-    csv_path1 = os.path.join(os.path.dirname(__file__), 'data', 'train_us_new.csv')
-    csv_path2 = os.path.join(os.path.dirname(__file__), 'data', 'test_new.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
     
     try:
-        df1 = pd.read_csv(csv_path1)
-        df2 = pd.read_csv(csv_path2)
-        df = pd.concat([df1, df2], ignore_index=True)
-        
+        df = pd.read_csv(csv_path)
         # 获取所有唯一城市名，排序后返回
         cities = sorted(df['City'].unique().tolist())
         return cities
@@ -210,12 +192,13 @@ def get_all_cities():
         print(f"读取城市列表失败: {e}")
         return []
 
+
 if __name__ == "__main__":
     print("=" * 50)
-    print("测试数据获取模块")
+    print("测试数据获取模块（新数据集：150个全球城市）")
     print("=" * 50)
     
-    test_cities = ["London", "Shanghai", "New York"]
+    test_cities = ["London", "Shanghai", "New York", "Tokyo", "Paris", "Beijing"]
     
     for city in test_cities:
         print(f"\n--- 测试城市: {city} ---")
