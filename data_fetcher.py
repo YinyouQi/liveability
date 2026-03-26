@@ -130,38 +130,63 @@ def _load_static_data(city_name_en):
 def _fetch_live_data(city_name_en):
     """
     获取实时数据：天气 + AQI
-    使用 OpenWeatherMap API
+    使用 OpenWeatherMap API + AQICN API
     """
-    # 你的 OpenWeatherMap API Key
-    API_KEY = "9481998945f63ef76d37cbee612af58a"
+    import requests
     
+    # OpenWeatherMap API Key
+    WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"
+    # AQICN API Token（从邮件获取）
+    AQI_TOKEN = "670cca4f211cfd77bcdd0e1366c476f50d0cd591"  
+    
+    # 初始化返回数据
+    result = {
+        'temp': None,
+        'aqi': None,
+        'weather_desc': 'Weather data unavailable'
+    }
+    
+    # 1. 获取天气数据
     try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name_en}&appid={API_KEY}&units=metric"
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name_en}&appid={WEATHER_API_KEY}&units=metric"
         response = requests.get(url, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
-            return {
-                'temp': data['main']['temp'],
-                'aqi': None,
-                'weather_desc': data['weather'][0]['description']
-            }
+            result['temp'] = data['main']['temp']
+            result['weather_desc'] = data['weather'][0]['description']
         else:
             print(f"天气 API 返回错误: {response.status_code}")
-            return {
-                'temp': None,
-                'aqi': None,
-                'weather_desc': 'Weather data unavailable'
-            }
-            
     except Exception as e:
         print(f"天气 API 调用失败: {e}")
-        return {
-            'temp': None,
-            'aqi': None,
-            'weather_desc': 'Weather API error'
+    
+    # 2. 获取空气质量数据
+    if AQI_TOKEN and AQI_TOKEN != "YOUR_AQI_TOKEN_HERE":
+        try:
+            # AQICN API 需要城市名
+            aqi_url = f"https://api.waqi.info/feed/{city_name_en}/?token={AQI_TOKEN}"
+            response = requests.get(aqi_url, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'ok':
+                    result['aqi'] = data['data']['aqi']
+                else:
+                    print(f"AQI API 返回错误: {data.get('data')}")
+            else:
+                print(f"AQI API 返回状态码: {response.status_code}")
+        except Exception as e:
+            print(f"AQI API 调用失败: {e}")
+    else:
+        # 没有配置 AQI Token，使用占位数据
+        mock_aqi = {
+            'london': 45, 'shanghai': 65, 'new york': 38,
+            'beijing': 120, 'tokyo': 55, 'paris': 42
         }
-
+        city_key = city_name_en.lower()
+        result['aqi'] = mock_aqi.get(city_key, 50)
+    
+    return result
 def get_all_cities():
     """
     返回所有城市列表，供前端下拉菜单使用
