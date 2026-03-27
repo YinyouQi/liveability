@@ -59,25 +59,26 @@ def get_city_profile(city_name_en):
 def _load_static_data(city_name_en):
     """
     从 CSV 文件读取城市静态数据（安全指数、健康指数、生活成本）
-    使用新数据集：livable_cities.csv
+    使用 Numbeo 多年度数据（2023-2026）
     """
     import pandas as pd
     import os
     
-    # CSV 文件路径
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
+    # 使用合并后的多年度数据
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
     
     try:
-        # 读取 CSV
         df = pd.read_csv(csv_path)
         
+        # 取每个城市最新年份的数据（2026年优先）
+        df_latest = df.sort_values('Year', ascending=False).groupby('City').first().reset_index()
+        
         # 查找匹配的城市（忽略大小写）
-        city_row = df[df['City'].str.lower() == city_name_en.lower()]
+        city_row = df_latest[df_latest['City'].str.lower() == city_name_en.lower()]
         
         if not city_row.empty:
             row = city_row.iloc[0]
             
-            # 获取各项指标，转换为 float
             safety = row.get('Safety Index', 70.0)
             if isinstance(safety, (np.integer, np.floating)):
                 safety = float(safety)
@@ -120,7 +121,7 @@ def _fetch_live_data(city_name_en):
     import requests
     
     # OpenWeatherMap API Key
-    WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"  # 正确的 Key
+    WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"
     # AQICN API Token
     AQI_TOKEN = "670cca4f211cfd77bcdd0e1366c476f50d0cd591"
     
@@ -176,16 +177,18 @@ def _fetch_live_data(city_name_en):
 def get_all_cities():
     """
     返回所有城市列表，供前端下拉菜单使用
+    使用 Numbeo 多年度数据
     """
     import pandas as pd
     import os
     
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
     
     try:
         df = pd.read_csv(csv_path)
-        # 获取所有唯一城市名，排序后返回
-        cities = sorted(df['City'].unique().tolist())
+        # 取最新年份的唯一城市
+        df_latest = df.sort_values('Year', ascending=False).groupby('City').first().reset_index()
+        cities = sorted(df_latest['City'].unique().tolist())
         return cities
         
     except Exception as e:
@@ -193,15 +196,87 @@ def get_all_cities():
         return []
 
 
+def get_city_history(city_name_en):
+    """
+    获取城市历史数据（2023-2026），供成员C 做趋势图
+    """
+    import pandas as pd
+    import os
+    
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
+    
+    try:
+        df = pd.read_csv(csv_path)
+        
+        # 筛选城市
+        city_data = df[df['City'].str.lower() == city_name_en.lower()]
+        
+        if city_data.empty:
+            return {'status': 'error', 'message': f'未找到城市 {city_name_en}'}
+        
+        # 按年份排序
+        city_data = city_data.sort_values('Year')
+        
+        result = {
+            'status': 'success',
+            'city': city_name_en,
+            'years_data': []
+        }
+        
+        for _, row in city_data.iterrows():
+            result['years_data'].append({
+                'year': int(row['Year']),
+                'safety_index': float(row.get('Safety Index', 0)),
+                'health_index': float(row.get('Health Care Index', 0)),
+                'cost_of_living': float(row.get('Cost of Living Index', 0)),
+                'quality_of_life': float(row.get('Quality of Life Index', 0))
+            })
+        
+        return result
+        
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+
+
+def get_available_years():
+    """
+    返回数据中包含的所有年份
+    """
+    import pandas as pd
+    import os
+    
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
+    
+    try:
+        df = pd.read_csv(csv_path)
+        years = sorted(df['Year'].unique().tolist())
+        return years
+    except Exception as e:
+        print(f"读取年份失败: {e}")
+        return []
+
+
 if __name__ == "__main__":
     print("=" * 50)
-    print("测试数据获取模块（新数据集：150个全球城市）")
+    print("测试数据获取模块（Numbeo 2023-2026 多年度数据）")
     print("=" * 50)
     
+    # 测试最新数据
     test_cities = ["London", "Shanghai", "New York", "Tokyo", "Paris", "Beijing"]
     
     for city in test_cities:
-        print(f"\n--- 测试城市: {city} ---")
+        print(f"\n--- 最新数据: {city} ---")
         result = get_city_profile(city)
         print(json.dumps(result, indent=2, ensure_ascii=False))
-        print()
+    
+    # 测试历史数据（趋势图）
+    print("\n" + "=" * 50)
+    print("测试历史数据（伦敦 2023-2026）")
+    print("=" * 50)
+    history = get_city_history("London")
+    print(json.dumps(history, indent=2, ensure_ascii=False))
+    
+    # 显示可用年份
+    print("\n" + "=" * 50)
+    print("可用年份:", get_available_years())
+    print("城市数量:", len(get_all_cities()))
