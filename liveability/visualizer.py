@@ -1,4 +1,4 @@
-from data_fetcher import get_city_profile
+from .data_fetcher import get_city_profile
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -74,8 +74,8 @@ def make_radar(city1_profile, city2_profile):
     
     # 第一个城市的 9 个维度值
     city1_values = [
-        live1['temp'],                                    # 温度
-        100 - live1['aqi'],                               # 空气质量（转成越高越好）
+        live1.get('temp') or 20,                                    # 温度
+        100 - (live1.get('aqi') or 50),                               # 空气质量（转成越高越好）
         static1.get('safety_index', 50),                  # 安全指数
         static1.get('health_index', 50),                  # 医疗指数
         100 - static1.get('cost_of_living', 50),          # 生活成本（越低越好）

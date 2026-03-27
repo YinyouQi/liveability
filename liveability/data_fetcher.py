@@ -72,7 +72,7 @@ def _load_static_data(city_name_en):
     import pandas as pd
     import os
     
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
     
     try:
         df = pd.read_csv(csv_path)
@@ -171,8 +171,8 @@ def _fetch_live_data(city_name_en):
     
     # 初始化返回数据
     result = {
-        'temp': None,
-        'aqi': None,
+        'temp': 20,          # 默认温度
+        'aqi': 50,           # 默认空气质量
         'weather_desc': 'Weather data unavailable'
     }
     
@@ -206,6 +206,11 @@ def _fetch_live_data(city_name_en):
                 print(f"AQI API 返回状态码: {response.status_code}")
         except Exception as e:
             print(f"AQI API 调用失败: {e}")
+
+        # 如果最终还是 None，强制兜底
+        if result['aqi'] is None:
+            result['aqi'] = 50
+            
     else:
         # 使用占位数据
         mock_aqi = {
@@ -214,6 +219,8 @@ def _fetch_live_data(city_name_en):
         }
         city_key = city_name_en.lower()
         result['aqi'] = mock_aqi.get(city_key, 50)
+
+    
     
     return result
 
