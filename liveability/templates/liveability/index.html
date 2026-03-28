@@ -1,65 +1,55 @@
-<<<<<<< HEAD
-{% extends "liveability/base.html" %}  <!-- 注意：这里的 radar_app 要换成 B 实际建的文件夹名 -->
+{% extends "liveability/base.html" %}
 
 {% block content %}
 <div class="p-5 mb-4 bg-white rounded-3 shadow-sm text-center">
     <div class="container-fluid py-5">
-        <h1 class="display-4 fw-bold text-primary mb-3">探索全球最适合你的城市</h1>
+        <h1 class="display-4 fw-bold text-primary mb-3">🌍 全球城市宜居度大 PK</h1>
         <p class="col-md-8 mx-auto fs-4 text-muted mb-5">
-            结合实时气候、空气质量与医疗安全指数，为您生成专属的城市宜居度多维雷达图。
+            输入两个城市名（英文），从安全、医疗、生活成本、实时气候等 9 大维度进行深度对决。
         </p>
         
-        <!-- 搜索框区域 -->
+        <!-- 双城市搜索对决区 -->
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <!-- 将来这里的 action 要指向 Django 的搜索视图 -->
-                <form action="#" method="get" class="input-group input-group-lg shadow-sm">
-                    <input type="text" name="q" class="form-control border-primary" placeholder="输入城市名称 (如: London, Tokyo)..." required>
-                    <button class="btn btn-primary px-5 fw-bold" type="submit">一键分析</button>
-                </form>
+            <div class="col-md-9">
+                <div class="card shadow-lg border-0 p-4 bg-light">
+                    <div class="row g-3 align-items-center text-center">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-secondary">城市 A</label>
+                            <input type="text" id="city1" class="form-control form-control-lg border-primary shadow-sm" placeholder="例如: London" required>
+                        </div>
+                        <div class="col-md-2 mt-4 fw-bold fs-2 text-danger">VS</div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-secondary">城市 B</label>
+                            <input type="text" id="city2" class="form-control form-control-lg border-primary shadow-sm" placeholder="例如: Tokyo" required>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="goToDashboard()" class="btn btn-primary btn-lg px-5 fw-bold shadow">🚀 开启巅峰对决</button>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <!-- 热门城市推荐 (可选) -->
-        <div class="mt-5 text-muted">
-            <small>热门搜索：</small>
-            <a href="#" class="badge bg-secondary text-decoration-none mx-1">东京</a>
-            <a href="#" class="badge bg-secondary text-decoration-none mx-1">纽约</a>
-            <a href="#" class="badge bg-secondary text-decoration-none mx-1">新加坡</a>
+
+        <!-- 热门推荐 -->
+        <div class="mt-5 text-muted small">
+            🔥 热门对比：
+            <a href="/dashboard/Shanghai/New%20York/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">上海 VS 纽约</a>
+            <a href="/dashboard/London/Paris/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">伦敦 VS 巴黎</a>
         </div>
     </div>
 </div>
-{% endblock content %}
-=======
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Liveability</title>
-</head>
-<body>
-
-<h1>City Liveability Comparison</h1>
-
-<form action="/dashboard/" method="get" onsubmit="return goToDashboard()">
-    <label>City 1:</label>
-    <input type="text" id="city1" required><br><br>
-
-    <label>City 2:</label>
-    <input type="text" id="city2" required><br><br>
-
-    <button type="submit">Compare</button>
-</form>
 
 <script>
+// 这里是对接 B 路由的关键逻辑
 function goToDashboard() {
-    const city1 = document.getElementById("city1").value;
-    const city2 = document.getElementById("city2").value;
-
-    window.location.href = `/dashboard/${city1}/${city2}/`;
-    return false;
+    const c1 = document.getElementById('city1').value.trim();
+    const c2 = document.getElementById('city2').value.trim();
+    if(c1 && c2) {
+        // 跳转到 B 规定的路由：/dashboard/城市A/城市B/
+        window.location.href = `/dashboard/${c1}/${c2}/`;
+    } else {
+        alert("请输入两个城市名称（英文）进行对比！");
+    }
 }
 </script>
-
-</body>
-</html>
->>>>>>> origin/feature/django-init
+{% endblock content %}
