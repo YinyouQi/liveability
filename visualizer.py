@@ -133,7 +133,7 @@ def make_radar(city1_profile, city2_profile):
         showlegend=True,
         legend=dict(x=0.9, y=1.1)
     )
-    return fig.to_html()
+    return fig.to_html(include_plotlyjs='cdn')
 
 #3.仪表盘图
 def make_gauge(city_name, score):
@@ -204,7 +204,7 @@ def make_gauge(city_name, score):
     ))
     
     fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
-    return fig.to_html()
+    return fig.to_html(include_plotlyjs='cdn')
 
 
 if __name__ == '__main__':
