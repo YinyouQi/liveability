@@ -1,3 +1,4 @@
+from .data_fetcher import get_city_profile, get_all_cities  # 加一个 get_all_cities
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -29,7 +30,10 @@ def fetch_city(request, city_name):
 
 def index(request):
     """主页"""
-    return render(request, 'liveability/index.html')
+    # 调用 A 的函数拿到城市列表 (如 ['London', 'Tokyo', ...])
+    cities = get_all_cities() 
+    # 传给 index.html
+    return render(request, 'liveability/index.html', {'city_list': cities})
 
 def city_dashboard(request, city1, city2):
     """城市对比页面"""

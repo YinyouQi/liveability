@@ -72,7 +72,7 @@ def _load_static_data(city_name_en):
     import pandas as pd
     import os
     
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'livable_cities.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'numbeo_all_years.csv')
     
     try:
         df = pd.read_csv(csv_path)

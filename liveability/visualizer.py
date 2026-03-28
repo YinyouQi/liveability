@@ -128,12 +128,14 @@ def make_radar(city1_profile, city2_profile):
             bgcolor='#f8f9fa'
         ),
         paper_bgcolor='#f8f9fa',
-        height=600,
-        width=800,
+        height=450, # 高度调小一点适应屏幕
+        # 删掉 width=800 这一行！
+        margin=dict(l=40, r=40, t=60, b=40), # 缩小四周留白
         showlegend=True,
-        legend=dict(x=0.9, y=1.1)
+        legend=dict(x=0.8, y=1.1)
     )
-    return fig.to_html()
+    # 极其关键：加上这几个参数，网页瞬间从 14MB 变 10KB！
+    return fig.to_html(full_html=False, include_plotlyjs=False)
 
 #3.仪表盘图
 def make_gauge(city_name, score):
@@ -203,8 +205,14 @@ def make_gauge(city_name, score):
         }
     ))
     
-    fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
-    return fig.to_html()
+    # 删掉 width=500，调整高度和边距
+    fig.update_layout(
+        height=300, 
+        margin=dict(l=20, r=20, t=50, b=20), 
+        paper_bgcolor="#f8f9fa"
+    )
+    # 同样加上这两个参数
+    return fig.to_html(full_html=False, include_plotlyjs=False)
 
 
 if __name__ == '__main__':

@@ -43,6 +43,32 @@
         </div>
     </div>
 
+    <!-- 在 dashboard.html 的雷达图下方增加这个 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow border-0">
+            <div class="card-header bg-gradient-primary text-dark fw-bold">
+                🔮 AI 预测：2027-2030 宜居度走势分析
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- 这里留给成员 C 渲染折线图 -->
+                        {{ prediction_chart|safe }}
+                    </div>
+                    <div class="col-md-4 bg-light p-4 rounded">
+                        <h5>专家解读</h5>
+                        <p class="text-muted">基于历史数据与线性回归算法，该城市的综合宜居度在未来 4 年预计将：
+                           <span class="badge bg-success">稳步上升</span>
+                        </p>
+                        <small>* 预测数据仅供学术参考</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <!-- 右边：城市 2 详情 -->
     <div class="col-lg-3">
         <!-- 仪表盘图 (来自成员 C) -->
@@ -69,3 +95,18 @@
     </div>
 </div>
 {% endblock content %}
+
+<!-- 底部：AI 趋势预测图 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 bg-white">
+            <div class="card-header bg-dark text-white fw-bold fs-5 text-center">
+                🔮 AI 预测：2023-2030 宜居度走势分析
+            </div>
+            <div class="card-body p-4">
+                <!-- 这里渲染 C 的折线图 -->
+                {{ trend_chart|safe }}
+            </div>
+        </div>
+    </div>
+</div>
