@@ -346,3 +346,44 @@ if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("可用年份:", get_available_years())
     print("城市数量:", len(get_all_cities()))
+
+def get_city_prediction(city_name_en, predict_year=None):
+    """
+    获取城市预测数据（供前端使用）
+    
+    参数:
+        city_name_en: 城市名
+        predict_year: 预测年份（不传则默认最新年份+1）
+    """
+    try:
+        from predictor import predict_city, get_available_predict_years
+        
+        # 如果没指定年份，自动用最新年份+1
+        if predict_year is None:
+            years_info = get_available_predict_years()
+            predict_year = years_info['recommended_start']
+        
+        result = predict_city(city_name_en, predict_year)
+        return result
+        
+    except ImportError:
+        return {
+            'status': 'error',
+            'message': '预测模块未安装，请运行: pip install scikit-learn'
+        }
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': str(e)
+        }
+
+
+def get_prediction_years():
+    """
+    获取可选择的预测年份列表（供前端下拉菜单）
+    """
+    try:
+        from predictor import get_available_predict_years
+        return get_available_predict_years()
+    except ImportError:
+        return {'years': [2027, 2028, 2029, 2030]}
