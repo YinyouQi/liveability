@@ -100,7 +100,7 @@ def predict_polynomial(years, values, predict_year, degree=2):
     return round(prediction, 1)
 
 
-def predict_city(city_name_en, predict_year, method='polynomial'):
+def predict_city(city_name_en, predict_year, method='linear'):
     """
     预测城市未来指数
     
@@ -230,7 +230,7 @@ def predict_city_trend(city_name_en, start_year, end_year):
     """
     results = []
     for year in range(start_year, end_year + 1):
-        pred = predict_city(city_name_en, year, method='polynomial')
+        pred = predict_city(city_name_en, year, method='linear')
         if pred['status'] == 'success':
             results.append({
                 'year': year,
@@ -254,23 +254,51 @@ if __name__ == "__main__":
     print(f"\n最新数据年份: {years_info['latest_year']}")
     print(f"推荐预测范围: {years_info['recommended_start']} - {years_info['recommended_end']}")
     
-    # 测试多个年份
-    print("\n--- 预测 London 未来多年 ---")
-    city = "London"
+    # 测试单个城市详细预测（显示所有指数）
+    print("\n--- 预测 London 2027 年详细数据（所有指数）---")
+    result = predict_city("London", 2027, method='linear')
+    print(json.dumps(result, indent=2, ensure_ascii=False))
     
-    for year in [2027, 2028, 2029, 2030]:
-        result = predict_city(city, year)
-        if result['status'] == 'success':
-            print(f"\n{year}年预测:")
-            print(f"  安全指数: {result['predictions']['safety_index']}")
-            print(f"  医疗指数: {result['predictions']['health_index']}")
-            print(f"  趋势: 安全指数 {result['trends']['safety_index']['direction']} {abs(result['trends']['safety_index']['change'])}点")
-    
-    # 测试趋势预测
+    # 测试多个年份，显示所有指数变化
     print("\n" + "=" * 50)
-    print("London 2027-2030 趋势")
+    print("London 2027-2030 各指数预测")
     print("=" * 50)
-    trend = predict_city_trend("London", 2027, 2030)
-    if trend:
-        for year_data in trend:
-            print(f"{year_data['year']}: 安全指数 {year_data['safety_index']}, 医疗指数 {year_data['health_index']}")
+    
+    city = "London"
+    years = [2027, 2028, 2029, 2030]
+    
+    # 先获取最新实际值
+    actual = predict_city(city, 2026, method='linear')
+    if actual['status'] == 'warning':
+        actual_data = actual['latest_data']
+        print(f"\n实际数据 (2026年):")
+        print(f"  安全指数: {actual_data['safety_index']}")
+        print(f"  医疗指数: {actual_data['health_index']}")
+        print(f"  生活成本: {actual_data['cost_of_living']}")
+        print(f"  污染指数: {actual_data['pollution_index']}")
+        print(f"  气候指数: {actual_data['climate_index']}")
+    
+    print("\n预测数据:")
+    for year in years:
+        result = predict_city(city, year, method='linear')
+        if result['status'] == 'success':
+            print(f"\n{year}年:")
+            print(f"  安全指数: {result['predictions']['safety_index']} ({result['trends']['safety_index']['direction']} {abs(result['trends']['safety_index']['change'])}点)")
+            print(f"  医疗指数: {result['predictions']['health_index']} ({result['trends']['health_index']['direction']} {abs(result['trends']['health_index']['change'])}点)")
+            print(f"  生活成本: {result['predictions']['cost_of_living']} ({result['trends']['cost_of_living']['direction']} {abs(result['trends']['cost_of_living']['change'])}点)")
+            print(f"  污染指数: {result['predictions']['pollution_index']} ({result['trends']['pollution_index']['direction']} {abs(result['trends']['pollution_index']['change'])}点)")
+            print(f"  气候指数: {result['predictions']['climate_index']} ({result['trends']['climate_index']['direction']} {abs(result['trends']['climate_index']['change'])}点)")
+    
+    # 多城市对比
+    print("\n" + "=" * 50)
+    print("多城市 2027 年预测对比")
+    print("=" * 50)
+    cities = ["London", "Shanghai", "New York", "Tokyo", "Paris"]
+    
+    for city in cities:
+        result = predict_city(city, 2027, method='linear')
+        if result['status'] == 'success':
+            print(f"\n{city}:")
+            print(f"  2026年实际: 安全={result['latest_data']['safety_index']}, 污染={result['latest_data']['pollution_index']}")
+            print(f"  2027年预测: 安全={result['predictions']['safety_index']}, 污染={result['predictions']['pollution_index']}")
+            print(f"  变化: 安全{result['trends']['safety_index']['direction']}{abs(result['trends']['safety_index']['change'])}, 污染{result['trends']['pollution_index']['direction']}{abs(result['trends']['pollution_index']['change'])}")
