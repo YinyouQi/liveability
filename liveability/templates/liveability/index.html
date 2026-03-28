@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {% extends "liveability/base.html" %}  <!-- 注意：这里的 radar_app 要换成 B 实际建的文件夹名 -->
 
 {% block content %}
@@ -30,36 +29,3 @@
     </div>
 </div>
 {% endblock content %}
-=======
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Liveability</title>
-</head>
-<body>
-
-<h1>City Liveability Comparison</h1>
-
-<form action="/dashboard/" method="get" onsubmit="return goToDashboard()">
-    <label>City 1:</label>
-    <input type="text" id="city1" required><br><br>
-
-    <label>City 2:</label>
-    <input type="text" id="city2" required><br><br>
-
-    <button type="submit">Compare</button>
-</form>
-
-<script>
-function goToDashboard() {
-    const city1 = document.getElementById("city1").value;
-    const city2 = document.getElementById("city2").value;
-
-    window.location.href = `/dashboard/${city1}/${city2}/`;
-    return false;
-}
-</script>
-
-</body>
-</html>
->>>>>>> origin/feature/django-init
