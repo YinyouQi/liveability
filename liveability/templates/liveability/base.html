@@ -15,17 +15,31 @@
     <!-- 全局顶部导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
         <div class="container">
-            <!-- 这里可以加个 Django 的 url 链接，指向主页 -->
-            <a class="navbar-brand fw-bold" href="#">🌍 Liveability Radar</a>
+            <a class="navbar-brand fw-bold" href="{% url 'liveability:index' %}">🌍 Liveability Radar</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <!-- 这里将来要替换成 Django 的判断用户是否登录的逻辑 (第19章) -->
-                    <li class="nav-item"><a class="nav-link" href="#">登录</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2 px-3" href="#">注册账号</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link">你好, {{ user.username }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-light btn-sm">注销</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">登录</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">注册账号</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

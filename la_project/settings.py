@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # 自己的应用
     'liveability',
+    'accounts',
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -120,4 +121,5 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 # 我的设置
-LOGIN_REDIRECT_URL = 'learning_logs:index'
+LOGIN_REDIRECT_URL = 'liveability:index'
+LOGOUT_REDIRECT_URL = 'liveability:index'
