@@ -1,7 +1,6 @@
-from data_fetcher import get_city_profile
+from data_fetcher import get_city_profile, get_city_history
 import plotly.graph_objects as go
 import plotly.express as px
-
 
 # ===== 1. 宜居度评分 =====
 def calculate_score(city_profile):
@@ -206,6 +205,72 @@ def make_gauge(city_name, score):
     fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
     return fig.to_html(include_plotlyjs='cdn')
 
+def make_trend_chart(city_name, city_history):
+    """
+    生成城市宜居度变化趋势图（2023-2030）
+    """
+    import plotly.express as px
+    import pandas as pd
+    
+    if city_history['status'] != 'success':
+        return "<p>无法获取历史数据</p>"
+    
+    years_data = city_history['years_data']
+    
+    data = []
+    for item in years_data:
+        temp_profile = {
+            'static_data': {
+                'safety_index': item.get('safety_index', 50),
+                'health_index': item.get('health_index', 50),
+                'cost_of_living': item.get('cost_of_living', 50),
+                'property_ratio': item.get('property_ratio', 50),
+                'traffic_time': item.get('traffic_time', 50),
+                'pollution_index': item.get('pollution_index', 50),
+                'climate_index': item.get('climate_index', 50)
+            },
+            'live_data': {
+                'temp': 20,
+                'aqi': 50
+            }
+        }
+        score = calculate_score(temp_profile)
+        data.append({'year': item['year'], 'score': score})
+    
+    df = pd.DataFrame(data)
+    df = df.sort_values('year')
+    
+    fig = px.line(
+        df, 
+        x='year', 
+        y='score',
+        title=f'{city_name} Livability Trend (2023-2030)',
+        markers=True,
+        line_shape='linear'
+    )
+    
+    fig.update_traces(
+        line=dict(color='#3498db', width=3),
+        marker=dict(size=8, color='#e74c3c')
+    )
+    
+    fig.update_layout(
+        xaxis_title='Year',
+        yaxis_title='Livability Score',
+        yaxis_range=[0, 100],
+        hovermode='x',
+        plot_bgcolor='#f8f9fa',
+        paper_bgcolor='#f8f9fa',
+        font=dict(family="Arial", size=12)
+    )
+    
+    fig.add_hline(y=70, line_dash="dash", line_color="green", 
+                  annotation_text="Excellent (70+)", annotation_position="top right")
+    fig.add_hline(y=50, line_dash="dash", line_color="orange",
+                  annotation_text="Pass (50+)", annotation_position="bottom right")
+    
+    return fig.to_html(include_plotlyjs='cdn')
+
 
 if __name__ == '__main__':
     from data_fetcher import get_city_profile
@@ -227,3 +292,10 @@ if __name__ == '__main__':
     with open('radar_tokyo_london.html', 'w', encoding='utf-8') as f:
         f.write(radar_html)
     print("雷达图已生成: radar_tokyo_london.html")
+
+     # 生成趋势图
+    london_history = get_city_history('London')
+    trend_html = make_trend_chart('London', london_history)
+    with open('trend_london.html', 'w', encoding='utf-8') as f:
+        f.write(trend_html)
+    print("趋势图已生成: trend_london.html")
