@@ -1,9 +1,18 @@
 {% extends "liveability/base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-    <h2 class="fw-bold text-dark">⚔️ 城市决斗场：<span class="text-primary">{{ city1 }}</span> vs <span class="text-danger">{{ city2 }}</span></h2>
-    <a href="{% url 'liveability:index' %}" class="btn btn-outline-secondary px-4 shadow-sm">返回重新搜索</a>
+<div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-bar-chart-line-fill text-primary me-2"></i>城市宜居度洞察报告
+        </h2>
+        <p class="text-muted mb-0 fs-5">
+            对比分析：<strong class="text-primary">{{ city1 }}</strong> <span class="mx-2 text-secondary">|</span> <strong class="text-danger">{{ city2 }}</strong>
+        </p>
+    </div>
+    <a href="{% url 'liveability:index' %}" class="btn btn-outline-secondary px-4 shadow-sm">
+        <i class="bi bi-arrow-left-circle me-2"></i>返回控制台
+    </a>
 </div>
 
 <div class="row g-4">
