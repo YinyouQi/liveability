@@ -1,4 +1,4 @@
-from data_fetcher import get_city_profile, get_city_history
+from .data_fetcher import get_city_profile, get_city_history
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
