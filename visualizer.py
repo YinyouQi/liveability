@@ -169,7 +169,7 @@ def make_gauge(city_name, score):
             'font': {'size': 24, 'color': title_color}
         },
         number={
-            'font': {'size': 48, 'color': bar_color},
+            'font': {'size': 28, 'color': bar_color},
             'suffix': " pts"
         },
         gauge={
