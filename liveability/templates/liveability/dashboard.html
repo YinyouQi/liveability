@@ -10,8 +10,9 @@
     <!-- 左边：城市 1 详情 (来自成员 A 的数据) -->
     <div class="col-lg-3">
         <!-- 仪表盘图 (来自成员 C) -->
-        <div class="card shadow-sm border-0 mb-4 bg-white p-2">
-            {{ gauge1|safe }}
+        <!-- 把原来的 {{ gauge1|safe }} 换成这三行 -->
+        <div class="card shadow-sm border-0 mb-4 bg-white p-2" style="width: 100%; overflow: hidden;">
+             {{ gauge1|safe }}
         </div>
         
         <div class="card shadow-sm border-0 mb-4 border-start border-primary border-5">
@@ -36,10 +37,10 @@
     <div class="col-lg-6">
         <div class="card shadow border-0 h-100 bg-white">
             <div class="card-header bg-dark text-white fw-bold text-center py-3 fs-5">9 大宜居维度深度对决图</div>
-            <div class="card-body p-0 d-flex justify-content-center align-items-center">
-                <!-- 这里嵌入 C 的 Plotly 雷达图 -->
-                {{ radar|safe }}
-            </div>
+            <!-- 把原来的 {{ radar|safe }} 换成这三行 -->
+                <div class="card-body p-0 d-flex justify-content-center align-items-center" style="width: 100%; overflow: hidden;">
+                        {{ radar|safe }}
+                </div>
         </div>
     </div>
 
@@ -72,9 +73,10 @@
     <!-- 右边：城市 2 详情 -->
     <div class="col-lg-3">
         <!-- 仪表盘图 (来自成员 C) -->
-        <div class="card shadow-sm border-0 mb-4 bg-white p-2">
-            {{ gauge2|safe }}
-        </div>
+       <!-- 把原来的 {{ gauge2|safe }} 换成这三行 -->
+            <div class="card shadow-sm border-0 mb-4 bg-white p-2" style="width: 100%; overflow: hidden;">
+                {{ gauge2|safe }}
+            </div>
 
         <div class="card shadow-sm border-0 mb-4 border-end border-danger border-5 text-end">
             <div class="card-header bg-white fw-bold fs-5 border-0">(API) 实时环境监测</div>
