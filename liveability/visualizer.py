@@ -1,4 +1,9 @@
+<<<<<<< HEAD:liveability/visualizer.py
 from .data_fetcher import get_city_profile, get_city_history
+=======
+from data_fetcher import get_city_profile, get_city_history
+import pandas as pd
+>>>>>>> origin/feature/visualizer:visualizer.py
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -7,7 +12,6 @@ def calculate_score(city_profile):
     static = city_profile['static_data']
     live = city_profile['live_data']
     
-    # 静态数据（9个指标）
     safety = static.get('safety_index', 50)
     health = static.get('health_index', 50)
     cost = static.get('cost_of_living', 50)
@@ -16,11 +20,9 @@ def calculate_score(city_profile):
     pollution = static.get('pollution_index', 50)
     climate = static.get('climate_index', 50)
     
-    # 实时数据
     temp = live['temp']
     aqi = live['aqi']
     
-    # 温度评分（20-25°C 最佳）
     if temp is None:
         temp = 20
     if 20 <= temp <= 25:
@@ -28,7 +30,6 @@ def calculate_score(city_profile):
     else:
         temp_score = 100 - min(abs(temp - 22.5) * 5, 100)
     
-    # AQI 评分
     if aqi is None:
         aqi = 50
     if aqi <= 50:
@@ -40,14 +41,12 @@ def calculate_score(city_profile):
     else:
         aqi_score = 40
     
-    # 其他指标转成 0-100 分（值越低越好）
     cost_score = max(0, 100 - cost)
     property_score = max(0, 100 - property_ratio)
     traffic_score = max(0, 100 - traffic_time)
     pollution_score = max(0, 100 - pollution)
-    climate_score = climate  # 气候指数已经是 0-100
+    climate_score = climate
     
-    # 加权总分（9个维度，根据重要性调整权重）
     total = (temp_score * 0.12 +
              aqi_score * 0.12 +
              safety * 0.12 +
@@ -60,34 +59,30 @@ def calculate_score(city_profile):
     
     return round(total, 1)
 
+
 # ===== 2. 雷达图 =====
 def make_radar(city1_profile, city2_profile):
-    """
-    生成 9 维雷达图对比两个城市
-    """
     categories = ['温度', '空气质量', '安全指数', '医疗指数', '生活成本', 
                   '房价收入比', '通勤时间', '污染指数', '气候指数']
     
     static1 = city1_profile['static_data']
     live1 = city1_profile['live_data']
     
-    # 第一个城市的 9 个维度值
     city1_values = [
-        live1['temp'],                                    # 温度
-        100 - live1['aqi'],                               # 空气质量（转成越高越好）
-        static1.get('safety_index', 50),                  # 安全指数
-        static1.get('health_index', 50),                  # 医疗指数
-        100 - static1.get('cost_of_living', 50),          # 生活成本（越低越好）
-        100 - static1.get('property_ratio', 50),          # 房价收入比（越低越好）
-        100 - static1.get('traffic_time', 50),            # 通勤时间（越低越好）
-        100 - static1.get('pollution_index', 50),         # 污染指数（越低越好）
-        static1.get('climate_index', 50)                  # 气候指数
+        live1['temp'],
+        100 - live1['aqi'],
+        static1.get('safety_index', 50),
+        static1.get('health_index', 50),
+        100 - static1.get('cost_of_living', 50),
+        100 - static1.get('property_ratio', 50),
+        100 - static1.get('traffic_time', 50),
+        100 - static1.get('pollution_index', 50),
+        static1.get('climate_index', 50)
     ]
     
     static2 = city2_profile['static_data']
     live2 = city2_profile['live_data']
     
-    # 第二个城市的 9 个维度值
     city2_values = [
         live2['temp'],
         100 - live2['aqi'],
@@ -127,21 +122,19 @@ def make_radar(city1_profile, city2_profile):
             bgcolor='#f8f9fa'
         ),
         paper_bgcolor='#f8f9fa',
-        height=600,
-        width=800,
+        height=500,
         showlegend=True,
         legend=dict(x=0.9, y=1.1)
     )
+<<<<<<< HEAD:liveability/visualizer.py
     return fig.to_html(include_plotlyjs='cdn')
+=======
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+>>>>>>> origin/feature/visualizer:visualizer.py
 
-#3.仪表盘图
+
+# ===== 3. 仪表盘图 =====
 def make_gauge(city_name, score):
-    """
-    Generate a gauge chart for a city's livability score
-    """
-    import plotly.graph_objects as go
-    
-    # 根据分数设置颜色
     if score >= 80:
         bar_color = "#2ecc71"
         title_color = "#27ae60"
@@ -202,6 +195,7 @@ def make_gauge(city_name, score):
         }
     ))
     
+<<<<<<< HEAD:liveability/visualizer.py
     fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
     return fig.to_html(include_plotlyjs='cdn')
 
@@ -212,6 +206,14 @@ def make_trend_chart(city_name, city_history):
     import plotly.express as px
     import pandas as pd
     
+=======
+    fig.update_layout(height=350, paper_bgcolor="#f8f9fa")
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+
+
+# ===== 4. 趋势图 =====
+def make_trend_chart(city_name, city_history):
+>>>>>>> origin/feature/visualizer:visualizer.py
     if city_history['status'] != 'success':
         return "<p>无法获取历史数据</p>"
     
@@ -244,7 +246,11 @@ def make_trend_chart(city_name, city_history):
         df, 
         x='year', 
         y='score',
+<<<<<<< HEAD:liveability/visualizer.py
         title=f'{city_name} Livability Trend (2023-2030)',
+=======
+        title=f'{city_name} Livability Trend',
+>>>>>>> origin/feature/visualizer:visualizer.py
         markers=True,
         line_shape='linear'
     )
@@ -261,6 +267,10 @@ def make_trend_chart(city_name, city_history):
         hovermode='x',
         plot_bgcolor='#f8f9fa',
         paper_bgcolor='#f8f9fa',
+<<<<<<< HEAD:liveability/visualizer.py
+=======
+        height=400,
+>>>>>>> origin/feature/visualizer:visualizer.py
         font=dict(family="Arial", size=12)
     )
     
@@ -269,31 +279,36 @@ def make_trend_chart(city_name, city_history):
     fig.add_hline(y=50, line_dash="dash", line_color="orange",
                   annotation_text="Pass (50+)", annotation_position="bottom right")
     
+<<<<<<< HEAD:liveability/visualizer.py
     return fig.to_html(include_plotlyjs='cdn')
+=======
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+>>>>>>> origin/feature/visualizer:visualizer.py
 
 
 if __name__ == '__main__':
-    from data_fetcher import get_city_profile
+    from data_fetcher import get_city_profile, get_city_history
     
-    # 测试东京
     tokyo = get_city_profile('Tokyo')
     score = calculate_score(tokyo)
     print(f"东京评分: {score}")
     
-    # 生成仪表盘图
     gauge_html = make_gauge('Tokyo', score)
     with open('gauge_tokyo.html', 'w', encoding='utf-8') as f:
         f.write(gauge_html)
     print("仪表盘图已生成: gauge_tokyo.html")
     
-    # 生成雷达图
     london = get_city_profile('London')
     radar_html = make_radar(tokyo, london)
     with open('radar_tokyo_london.html', 'w', encoding='utf-8') as f:
         f.write(radar_html)
     print("雷达图已生成: radar_tokyo_london.html")
+<<<<<<< HEAD:liveability/visualizer.py
 
      # 生成趋势图
+=======
+    
+>>>>>>> origin/feature/visualizer:visualizer.py
     london_history = get_city_history('London')
     trend_html = make_trend_chart('London', london_history)
     with open('trend_london.html', 'w', encoding='utf-8') as f:
