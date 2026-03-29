@@ -1,122 +1,210 @@
 {% extends "liveability/base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+<!-- 顶部 Title 区域 -->
+<div class="d-flex justify-content-between align-items-end mb-4 pb-3 border-bottom">
     <div>
-        <h2 class="fw-bold text-dark mb-1">
-            <i class="bi bi-bar-chart-line-fill text-primary me-2"></i>城市宜居度洞察报告
+        <h2 class="fw-bold text-dark mb-2">
+            <i class="bi bi-globe-americas text-primary me-2"></i>全球城市智能洞察报告
         </h2>
-        <p class="text-muted mb-0 fs-5">
-            对比分析：<strong class="text-primary">{{ city1 }}</strong> <span class="mx-2 text-secondary">|</span> <strong class="text-danger">{{ city2 }}</strong>
-        </p>
+        <div class="d-flex align-items-center fs-5 mt-3">
+            <!-- 城市 A 徽章 + 收藏按钮 (留给B的坑) -->
+            <span class="badge bg-primary text-white py-2 px-3 fs-6 shadow-sm">
+                {{ city1 }} 
+                <a href="#" class="text-white text-decoration-none ms-2" title="加入收藏夹"><i class="bi bi-star"></i></a>
+            </span>
+            
+            <span class="mx-3 text-muted fw-bold fs-6">VS</span>
+            
+            <!-- 城市 B 徽章 + 收藏按钮 (留给B的坑) -->
+            <span class="badge bg-danger text-white py-2 px-3 fs-6 shadow-sm">
+                {{ city2 }} 
+                <a href="#" class="text-white text-decoration-none ms-2" title="加入收藏夹"><i class="bi bi-star"></i></a>
+            </span>
+        </div>
     </div>
-    <a href="{% url 'liveability:index' %}" class="btn btn-outline-secondary px-4 shadow-sm">
-        <i class="bi bi-arrow-left-circle me-2"></i>返回控制台
+    <a href="{% url 'liveability:index' %}" class="btn btn-outline-dark px-4 shadow-sm fw-bold">
+        <i class="bi bi-arrow-left me-2"></i>返回搜索
     </a>
 </div>
 
-<div class="row g-4">
-    <!-- 左边：城市 1 详情 (来自成员 A 的数据) -->
+<!-- 核心三列对比区 -->
+<div class="row g-4 align-items-stretch">
+    <!-- 左边：城市 1 详情 (蓝调主题) -->
     <div class="col-lg-3">
-        <!-- 仪表盘图 (来自成员 C) -->
-        <!-- 把原来的 {{ gauge1|safe }} 换成这三行 -->
-        <div class="card shadow-sm border-0 mb-4 bg-white p-2" style="width: 100%; overflow: hidden;">
+        <!-- 仪表盘 -->
+        <div class="card shadow-sm border-0 mb-3 bg-white p-1 rounded-4">
              {{ gauge1|safe }}
         </div>
         
-        <div class="card shadow-sm border-0 mb-4 border-start border-primary border-5">
-            <div class="card-header bg-white fw-bold fs-5 border-0">实时环境监测 (API)</div>
-            <ul class="list-group list-group-flush small">
-                <li class="list-group-item d-flex justify-content-between py-3"><span>🌡️ 当前气温</span> <strong>{{ data1.live_data.temp }} °C</strong></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><span>😷 AQI 空气质量</span> <strong class="text-success">{{ data1.live_data.aqi }}</strong></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><span>☁️ 天气描述</span> <strong class="text-muted">{{ data1.live_data.weather_desc }}</strong></li>
-            </ul>
-        </div>
-        <div class="card shadow-sm border-0 border-start border-primary border-5">
-            <div class="card-header bg-white fw-bold fs-5 border-0">基础设施评价 (CSV)</div>
-            <ul class="list-group list-group-flush small text-muted">
-                <li class="list-group-item d-flex justify-content-between py-3"><span>🛡️ 安全指数</span> <strong>{{ data1.static_data.safety_index }}</strong></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><span>🏥 医疗指数</span> <strong>{{ data1.static_data.health_index }}</strong></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><span>💰 消费水平</span> <strong>{{ data1.static_data.cost_of_living }}</strong></li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- 中间：终极对比雷达图 (来自成员 C) -->
-    <div class="col-lg-6">
-        <div class="card shadow border-0 h-100 bg-white">
-            <div class="card-header bg-dark text-white fw-bold text-center py-3 fs-5">9 大宜居维度深度对决图</div>
-            <!-- 把原来的 {{ radar|safe }} 换成这三行 -->
-                <div class="card-body p-0 d-flex justify-content-center align-items-center" style="width: 100%; overflow: hidden;">
-                        {{ radar|safe }}
-                </div>
-        </div>
-    </div>
-
-
-    <!-- 右边：城市 2 详情 -->
-    <div class="col-lg-3">
-        <!-- 仪表盘图 (来自成员 C) -->
-       <!-- 把原来的 {{ gauge2|safe }} 换成这三行 -->
-            <div class="card shadow-sm border-0 mb-4 bg-white p-2" style="width: 100%; overflow: hidden;">
-                {{ gauge2|safe }}
+        <!-- 实时数据 API -->
+        <div class="card shadow-sm border-0 mb-3 border-start border-primary border-4 rounded-3">
+            <div class="card-header bg-transparent fw-bold text-primary border-0 pt-3 pb-0">
+                <i class="bi bi-activity me-1"></i>实时环境动态
             </div>
-
-        <div class="card shadow-sm border-0 mb-4 border-end border-danger border-5 text-end">
-            <div class="card-header bg-white fw-bold fs-5 border-0">(API) 实时环境监测</div>
-            <ul class="list-group list-group-flush small">
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.live_data.temp }} °C</strong> <span>当前气温 🌡️</span></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.live_data.aqi }}</strong> <span>AQI 空气质量 😷</span></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.live_data.weather_desc }}</strong> <span>天气描述 ☁️</span></li>
-            </ul>
+            <div class="card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-thermometer-half text-danger me-1"></i>气温</span> 
+                        <strong class="fs-6">{{ data1.live_data.temp }} °C</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-wind text-info me-1"></i>空气质量 (AQI)</span> 
+                        <strong class="text-success fs-6">{{ data1.live_data.aqi }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0 border-0">
+                        <span class="text-muted"><i class="bi bi-cloud-sun text-warning me-1"></i>气象状况</span> 
+                        <strong class="text-dark">{{ data1.live_data.weather_desc }}</strong>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="card shadow-sm border-0 border-end border-danger border-5 text-end">
-            <div class="card-header bg-white fw-bold fs-5 border-0">(CSV) 基础设施评价</div>
-            <ul class="list-group list-group-flush small text-muted">
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.static_data.safety_index }}</strong> <span>安全指数 🛡️</span></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.static_data.health_index }}</strong> <span>医疗指数 🏥</span></li>
-                <li class="list-group-item d-flex justify-content-between py-3"><strong>{{ data2.static_data.cost_of_living }}</strong> <span>消费水平 💰</span></li>
-            </ul>
+
+        <!-- 静态基建 CSV -->
+        <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3">
+            <div class="card-header bg-transparent fw-bold text-primary border-0 pt-3 pb-0">
+                <i class="bi bi-buildings me-1"></i>静态基建指标
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>治安指数</span> 
+                        <strong>{{ data1.static_data.safety_index }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-heart-pulse text-danger me-1"></i>医疗水平</span> 
+                        <strong>{{ data1.static_data.health_index }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0 border-0">
+                        <span class="text-muted"><i class="bi bi-wallet2 text-warning me-1"></i>消费指数</span> 
+                        <strong>{{ data1.static_data.cost_of_living }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 中间：终极对比雷达图 (深色沉浸式头部) -->
+    <div class="col-lg-6 d-flex flex-column">
+        <div class="card shadow-lg border-0 bg-white rounded-4 flex-grow-1 overflow-hidden">
+            <div class="card-header bg-dark text-white fw-bold text-center py-3 fs-5 border-0">
+                <i class="bi bi-radar me-2 text-info"></i>多维宜居指数综合评估模型
+            </div>
+            <div class="card-body p-0 d-flex justify-content-center align-items-center bg-light" style="width: 100%; min-height: 400px;">
+                {{ radar|safe }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 右边：城市 2 详情 (红调主题) -->
+    <div class="col-lg-3">
+        <!-- 仪表盘 -->
+        <div class="card shadow-sm border-0 mb-3 bg-white p-1 rounded-4">
+            {{ gauge2|safe }}
+        </div>
+
+        <!-- 实时数据 API -->
+        <div class="card shadow-sm border-0 mb-3 border-end border-danger border-4 rounded-3 text-end">
+            <div class="card-header bg-transparent fw-bold text-danger border-0 pt-3 pb-0">
+                实时环境动态<i class="bi bi-activity ms-1"></i>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <strong class="fs-6">{{ data2.live_data.temp }} °C</strong>
+                        <span class="text-muted">气温<i class="bi bi-thermometer-half text-danger ms-1"></i></span> 
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <strong class="text-success fs-6">{{ data2.live_data.aqi }}</strong>
+                        <span class="text-muted">空气质量 (AQI)<i class="bi bi-wind text-info ms-1"></i></span> 
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0 border-0">
+                        <strong class="text-dark">{{ data2.live_data.weather_desc }}</strong>
+                        <span class="text-muted">气象状况<i class="bi bi-cloud-sun text-warning ms-1"></i></span> 
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 静态基建 CSV -->
+        <div class="card shadow-sm border-0 border-end border-danger border-4 rounded-3 text-end">
+            <div class="card-header bg-transparent fw-bold text-danger border-0 pt-3 pb-0">
+                静态基建指标<i class="bi bi-buildings ms-1"></i>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <strong>{{ data2.static_data.safety_index }}</strong>
+                        <span class="text-muted">治安指数<i class="bi bi-shield-check text-success ms-1"></i></span> 
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <strong>{{ data2.static_data.health_index }}</strong>
+                        <span class="text-muted">医疗水平<i class="bi bi-heart-pulse text-danger ms-1"></i></span> 
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0 border-0">
+                        <strong>{{ data2.static_data.cost_of_living }}</strong>
+                        <span class="text-muted">消费指数<i class="bi bi-wallet2 text-warning ms-1"></i></span> 
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
-
-<!-- 底部：AI 趋势预测图 -->
-<div class="row mt-4">
+<!-- 底部：AI 趋势预测图 (科技感 UI) -->
+<div class="row mt-5 mb-5">
     <div class="col-12">
-        <div class="card shadow-sm border-0 bg-white">
-            <div class="card-header bg-gradient-primary text-dark fw-bold">
-                🔮 AI 预测：2027-2030 宜居度走势分析
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <!-- 带有极客感的深色头部 -->
+            <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+                <div class="fw-bold fs-5">
+                    <i class="bi bi-robot text-info me-2"></i>机器学习趋势推演 (Machine Learning Forecast)
+                </div>
+                <span class="badge bg-secondary text-light">模型：Scikit-Learn Linear Regression</span>
             </div>
-<div class="card-body p-4">
-                {{ trend_chart|safe }}
-            </div>
-            <div class="card-body border-top">
-                <h5>📊 预测结果 ({{ prediction1.predict_year }})</h5>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card bg-light p-2 text-center">
-                            <small>安全指数</small>
-                            <strong>{{ prediction1.predictions.safety_index }}</strong>
+            
+            <div class="card-body p-4 bg-light">
+                <div class="row align-items-center">
+                    <!-- 左侧：折线图 -->
+                    <div class="col-lg-8 border-end pb-3 pb-lg-0">
+                        <p class="text-muted fw-bold mb-2">📈 {{ city1 }} 历史时序数据与预测</p>
+                        <div class="bg-white p-2 rounded-3 shadow-sm" style="width: 100%; overflow: hidden;">
+                            {{ trend_chart|safe }}
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light p-2 text-center">
-                            <small>医疗指数</small>
-                            <strong>{{ prediction1.predictions.health_index }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light p-2 text-center">
-                            <small>生活成本</small>
-                            <strong>{{ prediction1.predictions.cost_of_living }}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-light p-2 text-center">
-                            <small>污染指数</small>
-                            <strong>{{ prediction1.predictions.pollution_index }}</strong>
+                    
+                    <!-- 右侧：预测结果数值卡片 -->
+                    <div class="col-lg-4 ps-lg-4">
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-calendar-check text-success me-2"></i>目标预测年份: <span class="text-primary">{{ prediction1.predict_year }}</span>
+                        </h5>
+                        <p class="text-muted small mb-4">基于多项式特征与多元线性回归算法，推演出 {{ city1 }} 在 {{ prediction1.predict_year }} 年的核心指标预计如下：</p>
+                        
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-success border-3">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">安全指数预测</small>
+                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.safety_index }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-danger border-3">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">医疗指数预测</small>
+                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.health_index }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-warning border-3">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">生活成本推演</small>
+                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.cost_of_living }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-info border-3">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">污染指数推演</small>
+                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.pollution_index }}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

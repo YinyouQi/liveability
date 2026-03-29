@@ -79,3 +79,7 @@ def city_dashboard(request, city1, city2):
         "trend_chart": trend_chart,     # 模板中用 trend_chart
         "prediction1": prediction1,     # 模板中用 prediction1
     })
+
+def methodology(request):
+    """方法论与数据来源说明页"""
+    return render(request, "liveability/methodology.html")

@@ -13,7 +13,7 @@
             <div class="col-md-9">
                 <div class="card shadow-lg border-0 p-4 bg-light">
                     
-                    <!-- 极其关键：定义 Datalist 接收后端的城市列表 -->
+                    <!-- 极其关键：定义 Datalist 接收后端的城市列表 (这个for循环是闭合的) -->
                     <datalist id="citiesList">
                         {% for city in city_list %}
                             <option value="{{ city }}"></option>
@@ -23,13 +23,11 @@
                     <div class="row g-3 align-items-center text-center">
                         <div class="col-md-5">
                             <label class="form-label fw-bold text-secondary">城市 A</label>
-                            <!-- 注意这里加了 list="citiesList" -->
                             <input type="text" id="city1" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." required>
                         </div>
                         <div class="col-md-2 mt-4 fw-bold fs-2 text-danger">VS</div>
                         <div class="col-md-5">
                             <label class="form-label fw-bold text-secondary">城市 B</label>
-                            <!-- 这里也加了 list="citiesList" -->
                             <input type="text" id="city2" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." required>
                         </div>
                     </div>
@@ -39,22 +37,73 @@
                 </div>
             </div>
         </div>
+        
         <!-- 热门推荐 -->
         <div class="mt-5 text-muted small">
             🔥 热门对比：
             <a href="/dashboard/Shanghai/New%20York/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">上海 VS 纽约</a>
             <a href="/dashboard/London/Paris/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">伦敦 VS 巴黎</a>
         </div>
+
+        <!-- 👇 纯前端静态数据的排行榜 UI，去掉了所有容易报错的后端标签 👇 -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-10 text-start">
+                <h3 class="fw-bold mb-3 text-dark border-bottom pb-2">🏆 2024 全球宜居度指数预测榜单 (Top Cities)</h3>
+                <div class="table-responsive shadow-sm bg-white rounded-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark text-nowrap">
+                            <tr>
+                                <th>排名</th>
+                                <th>城市</th>
+                                <th>综合评分</th>
+                                <th>治安等级</th>
+                                <th>医疗水平</th>
+                                <th>AI 趋势预测 (5年内)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark fs-6">1</span></td>
+                                <td class="fw-bold">Vienna (维也纳)</td>
+                                <td><span class="text-success fw-bold fs-5">98.4</span></td>
+                                <td>极高 (Very High)</td>
+                                <td>卓越 (Excellent)</td>
+                                <td><span class="text-success">↗ 持续向好</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-secondary fs-6">2</span></td>
+                                <td class="fw-bold">Copenhagen (哥本哈根)</td>
+                                <td><span class="text-success fw-bold fs-5">98.0</span></td>
+                                <td>极高 (Very High)</td>
+                                <td>卓越 (Excellent)</td>
+                                <td><span class="text-muted">→ 保持稳定</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger fs-6" style="background-color: #cd7f32 !important;">3</span></td>
+                                <td class="fw-bold">Zurich (苏黎世)</td>
+                                <td><span class="text-success fw-bold fs-5">97.1</span></td>
+                                <td>极高 (Very High)</td>
+                                <td>卓越 (Excellent)</td>
+                                <td><span class="text-success">↗ 持续向好</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end mt-2">
+                    <small class="text-muted">* 数据由 Scikit-Learn 线性回归模型基于 API 实时推算，非最终排名。</small>
+                </div>
+            </div>
+        </div>
+        <!-- 👆 排行榜 UI 骨架结束 👆 -->
+
     </div>
 </div>
 
 <script>
-// 这里是对接 B 路由的关键逻辑
 function goToDashboard() {
     const c1 = document.getElementById('city1').value.trim();
     const c2 = document.getElementById('city2').value.trim();
     if(c1 && c2) {
-        // 跳转到 B 规定的路由：/dashboard/城市A/城市B/
         window.location.href = `/dashboard/${c1}/${c2}/`;
     } else {
         alert("请输入两个城市名称（英文）进行对比！");

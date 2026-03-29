@@ -1,0 +1,67 @@
+{% extends "liveability/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="display-5 fw-bold border-bottom pb-3 mb-4">📚 数据来源与预测模型 (Methodology)</h1>
+            
+            <p class="lead text-muted mb-5">
+                本项目 (Global Liveability Intelligence) 旨在通过整合静态基础设施数据与实时环境 API，并结合机器学习算法，为全球化人才提供客观、动态的城市宜居度洞察。以下为本平台的数据工程与算法说明。
+            </p>
+
+            <div class="row g-4">
+                <!-- 数据来源卡片 -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white">
+                        <div class="card-body">
+                            <h4 class="card-title fw-bold text-primary mb-3">📡 实时与静态数据源</h4>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>气象与气候实时数据：</strong><br>
+                                    接入 <a href="https://openweathermap.org/api" target="_blank">OpenWeatherMap API</a>，获取温度、湿度、极端天气频率等实时特征向量。
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>空气质量指数 (AQI)：</strong><br>
+                                    接入 <a href="https://aqicn.org/api/" target="_blank">AQICN API</a>，反映城市实时污染状况。
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>医疗、治安与生活成本：</strong><br>
+                                    基础数据集来源于 <a href="https://www.numbeo.com/" target="_blank">Numbeo (2024版)</a> 官方众包数据库，经过清洗和归一化处理。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 算法模型卡片 -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white">
+                        <div class="card-body">
+                            <h4 class="card-title fw-bold text-success mb-3">🤖 机器学习预测模型</h4>
+                            <p class="card-text">
+                                我们并没有局限于静态展示，而是引入了 <strong>Scikit-Learn</strong> 库进行趋势推演。
+                            </p>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>算法选择：</strong> 多元线性回归 (Multiple Linear Regression) 与时间序列分析。
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>训练数据：</strong> 提取各城市 2018-2023 年的历史多维度指标。
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>预测目标：</strong> 推演未来 3-5 年该城市宜居度的走势（上升/下降/平稳），辅助用户做长期外派或定居决策。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 text-center text-muted">
+                <p>Designed and Engineered by Group [你们的组名] © 2024</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
