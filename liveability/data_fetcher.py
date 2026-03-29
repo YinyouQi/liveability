@@ -363,7 +363,7 @@ def get_city_prediction(city_name_en, predict_year=None):
         predict_year: 预测年份（不传则默认最新年份+1）
     """
     try:
-        from predictor import predict_city, get_available_predict_years
+        from liveability.predictor import predict_city, get_available_predict_years
         
         # 如果没指定年份，自动用最新年份+1
         if predict_year is None:
@@ -390,7 +390,7 @@ def get_prediction_years():
     获取可选择的预测年份列表（供前端下拉菜单）
     """
     try:
-        from predictor import get_available_predict_years
+        from liveability.predictor import get_available_predict_years
         return get_available_predict_years()
     except ImportError:
         return {'years': [2027, 2028, 2029, 2030]}
