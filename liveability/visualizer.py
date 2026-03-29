@@ -1,7 +1,6 @@
-from .data_fetcher import get_city_profile
+from .data_fetcher import get_city_profile, get_city_history
 import plotly.graph_objects as go
 import plotly.express as px
-
 
 # ===== 1. 宜居度评分 =====
 def calculate_score(city_profile):
@@ -74,8 +73,8 @@ def make_radar(city1_profile, city2_profile):
     
     # 第一个城市的 9 个维度值
     city1_values = [
-        live1.get('temp') or 20,                                    # 温度
-        100 - (live1.get('aqi') or 50),                               # 空气质量（转成越高越好）
+        live1['temp'],                                    # 温度
+        100 - live1['aqi'],                               # 空气质量（转成越高越好）
         static1.get('safety_index', 50),                  # 安全指数
         static1.get('health_index', 50),                  # 医疗指数
         100 - static1.get('cost_of_living', 50),          # 生活成本（越低越好）
@@ -128,14 +127,12 @@ def make_radar(city1_profile, city2_profile):
             bgcolor='#f8f9fa'
         ),
         paper_bgcolor='#f8f9fa',
-        height=450, # 高度调小一点适应屏幕
-        # 删掉 width=800 这一行！
-        margin=dict(l=40, r=40, t=60, b=40), # 缩小四周留白
+        height=600,
+        width=800,
         showlegend=True,
-        legend=dict(x=0.8, y=1.1)
+        legend=dict(x=0.9, y=1.1)
     )
-    # 极其关键：加上这几个参数，网页瞬间从 14MB 变 10KB！
-    return fig.to_html(full_html=False, include_plotlyjs=False)
+    return fig.to_html(include_plotlyjs='cdn')
 
 #3.仪表盘图
 def make_gauge(city_name, score):
@@ -205,14 +202,74 @@ def make_gauge(city_name, score):
         }
     ))
     
-    # 删掉 width=500，调整高度和边距
-    fig.update_layout(
-        height=300, 
-        margin=dict(l=20, r=20, t=50, b=20), 
-        paper_bgcolor="#f8f9fa"
+    fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
+    return fig.to_html(include_plotlyjs='cdn')
+
+def make_trend_chart(city_name, city_history):
+    """
+    生成城市宜居度变化趋势图（2023-2030）
+    """
+    import plotly.express as px
+    import pandas as pd
+    
+    if city_history['status'] != 'success':
+        return "<p>无法获取历史数据</p>"
+    
+    years_data = city_history['years_data']
+    
+    data = []
+    for item in years_data:
+        temp_profile = {
+            'static_data': {
+                'safety_index': item.get('safety_index', 50),
+                'health_index': item.get('health_index', 50),
+                'cost_of_living': item.get('cost_of_living', 50),
+                'property_ratio': item.get('property_ratio', 50),
+                'traffic_time': item.get('traffic_time', 50),
+                'pollution_index': item.get('pollution_index', 50),
+                'climate_index': item.get('climate_index', 50)
+            },
+            'live_data': {
+                'temp': 20,
+                'aqi': 50
+            }
+        }
+        score = calculate_score(temp_profile)
+        data.append({'year': item['year'], 'score': score})
+    
+    df = pd.DataFrame(data)
+    df = df.sort_values('year')
+    
+    fig = px.line(
+        df, 
+        x='year', 
+        y='score',
+        title=f'{city_name} Livability Trend (2023-2030)',
+        markers=True,
+        line_shape='linear'
     )
-    # 同样加上这两个参数
-    return fig.to_html(full_html=False, include_plotlyjs=False)
+    
+    fig.update_traces(
+        line=dict(color='#3498db', width=3),
+        marker=dict(size=8, color='#e74c3c')
+    )
+    
+    fig.update_layout(
+        xaxis_title='Year',
+        yaxis_title='Livability Score',
+        yaxis_range=[0, 100],
+        hovermode='x',
+        plot_bgcolor='#f8f9fa',
+        paper_bgcolor='#f8f9fa',
+        font=dict(family="Arial", size=12)
+    )
+    
+    fig.add_hline(y=70, line_dash="dash", line_color="green", 
+                  annotation_text="Excellent (70+)", annotation_position="top right")
+    fig.add_hline(y=50, line_dash="dash", line_color="orange",
+                  annotation_text="Pass (50+)", annotation_position="bottom right")
+    
+    return fig.to_html(include_plotlyjs='cdn')
 
 
 if __name__ == '__main__':
@@ -235,3 +292,10 @@ if __name__ == '__main__':
     with open('radar_tokyo_london.html', 'w', encoding='utf-8') as f:
         f.write(radar_html)
     print("雷达图已生成: radar_tokyo_london.html")
+
+     # 生成趋势图
+    london_history = get_city_history('London')
+    trend_html = make_trend_chart('London', london_history)
+    with open('trend_london.html', 'w', encoding='utf-8') as f:
+        f.write(trend_html)
+    print("趋势图已生成: trend_london.html")
