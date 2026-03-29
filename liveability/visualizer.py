@@ -1,9 +1,5 @@
-<<<<<<< HEAD:liveability/visualizer.py
-from .data_fetcher import get_city_profile, get_city_history
-=======
 from data_fetcher import get_city_profile, get_city_history
 import pandas as pd
->>>>>>> origin/feature/visualizer:visualizer.py
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -126,11 +122,7 @@ def make_radar(city1_profile, city2_profile):
         showlegend=True,
         legend=dict(x=0.9, y=1.1)
     )
-<<<<<<< HEAD:liveability/visualizer.py
-    return fig.to_html(include_plotlyjs='cdn')
-=======
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
->>>>>>> origin/feature/visualizer:visualizer.py
 
 
 # ===== 3. 仪表盘图 =====
@@ -195,25 +187,12 @@ def make_gauge(city_name, score):
         }
     ))
     
-<<<<<<< HEAD:liveability/visualizer.py
-    fig.update_layout(height=400, width=500, paper_bgcolor="#f8f9fa")
-    return fig.to_html(include_plotlyjs='cdn')
-
-def make_trend_chart(city_name, city_history):
-    """
-    生成城市宜居度变化趋势图（2023-2030）
-    """
-    import plotly.express as px
-    import pandas as pd
-    
-=======
     fig.update_layout(height=350, paper_bgcolor="#f8f9fa")
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
 
 # ===== 4. 趋势图 =====
 def make_trend_chart(city_name, city_history):
->>>>>>> origin/feature/visualizer:visualizer.py
     if city_history['status'] != 'success':
         return "<p>无法获取历史数据</p>"
     
@@ -246,11 +225,7 @@ def make_trend_chart(city_name, city_history):
         df, 
         x='year', 
         y='score',
-<<<<<<< HEAD:liveability/visualizer.py
-        title=f'{city_name} Livability Trend (2023-2030)',
-=======
         title=f'{city_name} Livability Trend',
->>>>>>> origin/feature/visualizer:visualizer.py
         markers=True,
         line_shape='linear'
     )
@@ -267,10 +242,7 @@ def make_trend_chart(city_name, city_history):
         hovermode='x',
         plot_bgcolor='#f8f9fa',
         paper_bgcolor='#f8f9fa',
-<<<<<<< HEAD:liveability/visualizer.py
-=======
         height=400,
->>>>>>> origin/feature/visualizer:visualizer.py
         font=dict(family="Arial", size=12)
     )
     
@@ -279,11 +251,7 @@ def make_trend_chart(city_name, city_history):
     fig.add_hline(y=50, line_dash="dash", line_color="orange",
                   annotation_text="Pass (50+)", annotation_position="bottom right")
     
-<<<<<<< HEAD:liveability/visualizer.py
-    return fig.to_html(include_plotlyjs='cdn')
-=======
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
->>>>>>> origin/feature/visualizer:visualizer.py
 
 
 if __name__ == '__main__':
@@ -303,12 +271,7 @@ if __name__ == '__main__':
     with open('radar_tokyo_london.html', 'w', encoding='utf-8') as f:
         f.write(radar_html)
     print("雷达图已生成: radar_tokyo_london.html")
-<<<<<<< HEAD:liveability/visualizer.py
-
-     # 生成趋势图
-=======
     
->>>>>>> origin/feature/visualizer:visualizer.py
     london_history = get_city_history('London')
     trend_html = make_trend_chart('London', london_history)
     with open('trend_london.html', 'w', encoding='utf-8') as f:
