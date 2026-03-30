@@ -120,7 +120,6 @@ def city_detail(request, city_name):
         except:
             pass
     
-<<<<<<< HEAD
     # 获取推荐对比城市（优先显示用户的收藏城市）
     similar_cities = []
     
@@ -141,14 +140,6 @@ def city_detail(request, city_name):
                 similar_cities.append(default_city)
                 if len(similar_cities) >= 5:
                     break
-=======
-    # 获取推荐相似城市（基于评分相近）
-    all_cities = get_all_cities()
-    similar_cities = []
-    for city in all_cities[:10]:  # 限制数量
-        if city != city_name:
-            similar_cities.append(city)
->>>>>>> 61dc1ecc9de6e898015c62d155e4b84a98b296c2
     
     return render(request, 'liveability/city_detail.html', {
         'city_name': city_name,
@@ -157,11 +148,7 @@ def city_detail(request, city_name):
         'trend_chart': trend_chart,
         'prediction': prediction,
         'is_favorited': is_favorited,
-<<<<<<< HEAD
         'similar_cities': similar_cities
-=======
-        'similar_cities': similar_cities[:5]  # 只显示5个推荐
->>>>>>> 61dc1ecc9de6e898015c62d155e4b84a98b296c2
     })
 
 @login_required
