@@ -12,4 +12,11 @@ urlpatterns = [
     path('favorites/', views.favorite_list, name='favorite_list'),
     path('favorites/add/<str:city_name>/', views.add_favorite, name='add_favorite'),
     path('favorites/remove/<str:city_name>/', views.remove_favorite, name='remove_favorite'),
+
+    # 城市搜索相关路由
+    path('search/', views.city_search, name='city_search'),
+    path('city/<str:city_name>/', views.city_detail, name='city_detail'),
+
+
 ]
+

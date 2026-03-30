@@ -1,0 +1,158 @@
+{% extends "liveability/base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="bi bi-search text-primary me-2"></i>探索全球城市
+            </h1>
+            <p class="lead text-muted">搜索您感兴趣的城市，查看详细的宜居性分析报告</p>
+        </div>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <form method="GET" action="{% url 'liveability:city_search' %}" class="d-flex">
+                <input type="text" 
+                       name="q" 
+                       class="form-control form-control-lg" 
+                       placeholder="输入城市名称（例如：London, Shanghai, Tokyo）"
+                       value="{{ query }}"
+                       autocomplete="off"
+                       list="citySuggestions">
+                <datalist id="citySuggestions">
+                    {% for city in city_list %}
+                        <option value="{{ city }}">
+                    {% endfor %}
+                </datalist>
+                <button type="submit" class="btn btn-primary btn-lg ms-2 px-4">
+                    <i class="bi bi-search"></i> 搜索
+                </button>
+            </form>
+            <div class="mt-2 text-muted small">
+                <i class="bi bi-info-circle"></i> 支持中英文城市名，支持模糊搜索
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索结果 -->
+    {% if search_performed %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-0 pt-4 pb-0">
+                        <h4 class="mb-0">
+                            搜索结果 
+                            {% if result_count > 0 %}
+                                <span class="badge bg-primary">{{ result_count }}</span>
+                            {% endif %}
+                        </h4>
+                        {% if result_count == 0 %}
+                            <p class="text-muted mt-2">未找到匹配的城市，请尝试其他关键词</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if search_results %}
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                {% for city in search_results %}
+                                    <div class="col">
+                                        <div class="card h-100 shadow-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <h5 class="card-title fw-bold text-primary mb-0">
+                                                        <i class="bi bi-building me-1"></i>{{ city.name }}
+                                                    </h5>
+                                                    {% if user.is_authenticated %}
+                                                        {% if city.is_favorited %}
+                                                            <a href="{% url 'liveability:remove_favorite' city.name %}" 
+                                                               class="text-danger text-decoration-none" 
+                                                               title="取消收藏">
+                                                                <i class="bi bi-star-fill fs-5"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url 'liveability:add_favorite' city.name %}" 
+                                                               class="text-muted text-decoration-none" 
+                                                               title="加入收藏">
+                                                                <i class="bi bi-star fs-5"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <a href="{% url 'accounts:login' %}" class="text-muted text-decoration-none" title="登录后收藏">
+                                                            <i class="bi bi-star fs-5"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="text-muted">宜居评分</span>
+                                                        <span class="badge bg-success fs-6">{{ city.score|floatformat:1 }}</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 8px;">
+                                                        <div class="progress-bar bg-success" 
+                                                             
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">安全指数</small>
+                                                        <strong>{{ city.safety_index }}</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">医疗指数</small>
+                                                        <strong>{{ city.health_index }}</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">生活成本</small>
+                                                        <strong>{{ city.cost_of_living }}</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">当前温度</small>
+                                                        <strong>{{ city.temperature }}°C</strong>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mt-3">
+                                                    <a href="{% url 'liveability:city_detail' city.name %}" 
+                                                       class="btn btn-outline-primary btn-sm w-100">
+                                                        <i class="bi bi-info-circle"></i> 查看详情
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- 热门城市推荐 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 bg-light">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-compass display-1 text-muted mb-3 d-block"></i>
+                        <h4 class="text-muted mb-3">开始搜索您感兴趣的城市</h4>
+                        <p class="text-muted">输入城市名称，获取详细的宜居性分析报告</p>
+                        <div class="mt-4">
+                            <span class="badge bg-secondary me-2">London</span>
+                            <span class="badge bg-secondary me-2">Shanghai</span>
+                            <span class="badge bg-secondary me-2">New York</span>
+                            <span class="badge bg-secondary me-2">Tokyo</span>
+                            <span class="badge bg-secondary me-2">Paris</span>
+                            <span class="badge bg-secondary me-2">Singapore</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
