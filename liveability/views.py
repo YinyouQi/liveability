@@ -4,9 +4,152 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
+from django.db.models import Q
 from .models import City, CityData, FavoriteCity
 from .visualizer import calculate_score, make_radar, make_gauge, make_trend_chart
 from .predictor import predict_city
+
+def city_search(request):
+    """城市搜索页面"""
+    query = request.GET.get('q', '').strip()
+    search_results = []
+    search_performed = False
+    city_list = get_all_cities()  # 获取所有城市列表
+    
+    if query:
+        search_performed = True
+        # 获取所有城市列表
+        all_cities = get_all_cities()
+        
+        # 模糊搜索匹配的城市
+        search_results = [
+            city for city in all_cities 
+            if query.lower() in city.lower()
+        ]
+        
+        # 限制结果数量，避免过多
+        search_results = search_results[:20]
+        
+        # 为每个搜索结果获取简要数据
+        cities_data = []
+        for city in search_results:
+            city_data = get_city_profile(city)
+            if city_data['status'] == 'success':
+                score = calculate_score(city_data)
+                
+                # 检查是否被当前用户收藏
+                is_favorited = False
+                if request.user.is_authenticated:
+                    try:
+                        city_obj = City.objects.get(name=city)
+                        is_favorited = FavoriteCity.objects.filter(
+                            user=request.user,
+                            city=city_obj
+                        ).exists()
+                    except City.DoesNotExist:
+                        pass
+                
+                cities_data.append({
+                    'name': city,
+                    'score': score,
+                    'safety_index': city_data['static_data']['safety_index'],
+                    'health_index': city_data['static_data']['health_index'],
+                    'cost_of_living': city_data['static_data']['cost_of_living'],
+                    'temperature': city_data['live_data']['temp'],
+                    'aqi': city_data['live_data']['aqi'],
+                    'weather_desc': city_data['live_data']['weather_desc'],
+                    'is_favorited': is_favorited
+                })
+        
+        # 按评分排序（高分在前）
+        cities_data.sort(key=lambda x: x['score'], reverse=True)
+        
+        return render(request, 'liveability/city_search.html', {
+            'query': query,
+            'search_results': cities_data,
+            'search_performed': search_performed,
+            'result_count': len(cities_data),
+            'city_list': city_list,  # 确保这一行有逗号
+        })  # ← 这里确保括号正确闭合
+    
+    # 如果没有搜索词，显示空页面
+    return render(request, 'liveability/city_search.html', {
+        'query': query,
+        'search_results': [],
+        'search_performed': search_performed,
+        'result_count': 0,
+        'city_list': city_list,
+    })
+
+
+def city_detail(request, city_name):
+    """城市详情页面"""
+    # 获取城市数据
+    city_data = get_city_profile(city_name)
+    
+    if city_data['status'] != 'success':
+        # 如果获取失败，返回404或错误页面
+        return render(request, 'liveability/city_not_found.html', {
+            'city_name': city_name
+        })
+    
+    # 计算评分
+    score = calculate_score(city_data)
+    
+    # 获取历史数据用于趋势图
+    history = get_city_history(city_name)
+    trend_chart = None
+    if history['status'] == 'success':
+        trend_chart = make_trend_chart(city_name, history)
+    
+    # 获取预测数据
+    prediction = predict_city(city_name, 2027)
+    
+    # 检查是否被收藏
+    is_favorited = False
+    if request.user.is_authenticated:
+        try:
+            city_obj, _ = City.objects.get_or_create(
+                name=city_name,
+                defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0}
+            )
+            is_favorited = FavoriteCity.objects.filter(
+                user=request.user,
+                city=city_obj
+            ).exists()
+        except:
+            pass
+    
+    # 获取推荐对比城市（优先显示用户的收藏城市）
+    similar_cities = []
+    
+    if request.user.is_authenticated:
+        # 获取用户收藏的城市
+        favorite_cities = FavoriteCity.objects.filter(
+            user=request.user
+        ).select_related('city').exclude(city__name=city_name)[:5]  # 排除当前城市，最多取5个
+        
+        similar_cities = [fav.city.name for fav in favorite_cities]
+    
+    # 如果用户没有收藏城市或收藏数量不足，用默认城市补充
+    default_cities = ['London', 'New York', 'Shanghai', 'Sydney', 'Los Angeles']
+    if len(similar_cities) < 5:
+        # 添加默认城市，排除当前城市和已有的收藏城市
+        for default_city in default_cities:
+            if default_city != city_name and default_city not in similar_cities:
+                similar_cities.append(default_city)
+                if len(similar_cities) >= 5:
+                    break
+    
+    return render(request, 'liveability/city_detail.html', {
+        'city_name': city_name,
+        'city_data': city_data,
+        'score': score,
+        'trend_chart': trend_chart,
+        'prediction': prediction,
+        'is_favorited': is_favorited,
+        'similar_cities': similar_cities
+    })
 
 @login_required
 def add_favorite(request, city_name):
