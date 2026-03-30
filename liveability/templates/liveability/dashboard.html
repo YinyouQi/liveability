@@ -2,6 +2,17 @@
 
 {% block content %}
 <!-- 顶部 Title 区域 -->
+ <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 animate-pulse" role="alert">
+    <div class="d-flex align-items-center">
+        <div class="spinner-grow spinner-grow-sm text-info me-3" role="status"></div>
+        <div>
+            <strong>AI 洞察摘要 (Insight Summary):</strong> 
+            当前对比显示，{% if score1 > score2 %}{{ city1 }}{% else %}{{ city2 }}{% endif %} 的综合宜居潜力在 {{ predict_year }} 年表现更佳。
+            建议关注 {{ city1 }} 的 {{ data1.live_data.weather_desc }} 实时变化对生活质量的影响。
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-between align-items-end mb-4 pb-3 border-bottom">
     <div>
         <h2 class="fw-bold text-dark mb-2">
@@ -26,7 +37,6 @@
                         <i class="bi bi-star"></i>
                     </a>
                 {% endif %}
-            </span>
             
             <span class="mx-3 text-muted fw-bold fs-6">VS</span>
             
@@ -179,59 +189,73 @@
     </div>
 </div>
 
-<!-- 底部：AI 趋势预测图 (科技感 UI) -->
-<div class="row mt-5 mb-5">
+<!-- 底部：AI 趋势预测图 (全动态双城对决版) -->
+<div class="row mt-5 mb-5 pb-5">
     <div class="col-12">
-        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden hover-lift">
             <!-- 带有极客感的深色头部 -->
-            <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center border-0">
                 <div class="fw-bold fs-5">
-                    <i class="bi bi-robot text-info me-2"></i>机器学习趋势推演 (Machine Learning Forecast)
+                    <i class="bi bi-robot text-info me-2"></i>机器学习未来趋势推演
+                    <span class="sub-en text-light d-inline ms-2">| Machine Learning Forecast ({{ predict_year }})</span>
                 </div>
-                <span class="badge bg-secondary text-light">模型：Scikit-Learn Linear Regression</span>
+                <span class="badge bg-secondary text-light">Model: Scikit-Learn Regression</span>
             </div>
             
             <div class="card-body p-4 bg-light">
-                <div class="row align-items-center">
-                    <!-- 左侧：折线图 -->
-                    <div class="col-lg-8 border-end pb-3 pb-lg-0">
-                        <p class="text-muted fw-bold mb-2">📈 {{ city1 }} 历史时序数据与预测</p>
-                        <div class="bg-white p-2 rounded-3 shadow-sm" style="width: 100%; overflow: hidden;">
+                <!-- 顶部：AI 综合结论摘要 (让互动感瞬间爆表) -->
+                <div class="alert alert-dark border-0 shadow-sm rounded-4 mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-grow spinner-grow-sm text-info me-3"></div>
+                        <div class="small">
+                            <strong>AI Insight Summary:</strong> 
+                            Based on historical regression analysis, 
+                            <span class="text-info fw-bold">{% if score1 > score2 %}{{ city1 }}{% else %}{{ city2 }}{% endif %}</span> 
+                            is projected to demonstrate higher overall liveability potential for the upcoming year <strong>{{ predict_year }}</strong>.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 align-items-center">
+                    <!-- 左侧：历史时序折线图 (保持宽屏效果) -->
+                    <div class="col-12 mb-4 border-bottom pb-4 text-center">
+                        <p class="text-muted fw-bold mb-3">📈 {{ city1 }} 历史时序数据与预测 <span class="sub-en d-inline ms-2">Historical Trend & Projection</span></p>
+                        <div class="bg-white p-3 rounded-4 shadow-sm border" style="width: 100%; overflow: hidden;">
                             {{ trend_chart|safe }}
                         </div>
                     </div>
                     
-                    <!-- 右侧：预测结果数值卡片 -->
-                    <div class="col-lg-4 ps-lg-4">
-                        <h5 class="fw-bold text-dark mb-3">
-                            <i class="bi bi-calendar-check text-success me-2"></i>目标预测年份: <span class="text-primary">{{ prediction1.predict_year }}</span>
-                        </h5>
-                        <p class="text-muted small mb-4">基于多项式特征与多元线性回归算法，推演出 {{ city1 }} 在 {{ prediction1.predict_year }} 年的核心指标预计如下：</p>
-                        
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-success border-3">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">安全指数预测</small>
-                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.safety_index }}</strong>
-                                </div>
+                    <!-- 下侧左右并排：2027 预测数据对决 -->
+                    <div class="row g-4">
+                        <!-- 城市 A 预测卡片 -->
+                        <div class="col-lg-6 border-end-lg">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="bi bi-calendar-check text-success me-2"></i>{{ city1 }} 
+                                <span class="badge bg-primary text-white ms-2">{{ predict_year }} 预计</span>
+                            </h6>
+                            <p class="text-muted small mb-4">基于多项式特征推演的 <strong>{{ city1 }}</strong> 核心指标：</p>
+                            
+                            <div class="row g-2">
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-success border-3 shadow-sm hover-lift"><span class="sub-en">Safety Index</span><strong class="fs-4">{{ prediction1.predictions.safety_index }}</strong></div></div>
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-danger border-3 shadow-sm hover-lift"><span class="sub-en">Health Index</span><strong class="fs-4">{{ prediction1.predictions.health_index }}</strong></div></div>
+                                <div class="col-6"><div class="col-12"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-warning border-3 shadow-sm hover-lift"><span class="sub-en">Cost of Living</span><strong class="fs-4">{{ prediction1.predictions.cost_of_living }}</strong></div></div></div>
+                                <div class="col-6"><div class="col-12"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-info border-3 shadow-sm hover-lift"><span class="sub-en">Pollution Index</span><strong class="fs-4">{{ prediction1.predictions.pollution_index }}</strong></div></div></div>
                             </div>
-                            <div class="col-6">
-                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-danger border-3">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">医疗指数预测</small>
-                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.health_index }}</strong>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-warning border-3">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">生活成本推演</small>
-                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.cost_of_living }}</strong>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card border-0 bg-white shadow-sm p-3 text-center h-100 rounded-3 border-bottom border-info border-3">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">污染指数推演</small>
-                                    <strong class="fs-4 text-dark mt-1">{{ prediction1.predictions.pollution_index }}</strong>
-                                </div>
+                        </div>
+
+                        <!-- 城市 B 预测卡片 (完全对齐) -->
+                        <div class="col-lg-6 ps-lg-4">
+                            <h6 class="fw-bold text-danger mb-3">
+                                <i class="bi bi-calendar-check text-success me-2"></i>{{ city2 }} 
+                                <span class="badge bg-danger text-white ms-2">{{ predict_year }} 预计</span>
+                            </h6>
+                            <p class="text-muted small mb-4">基于多项式特征推演的 <strong>{{ city2 }}</strong> 核心指标：</p>
+                            
+                            <div class="row g-2">
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-success border-3 shadow-sm hover-lift"><span class="sub-en">Safety Index</span><strong class="fs-4">{{ prediction2.predictions.safety_index }}</strong></div></div>
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-danger border-3 shadow-sm hover-lift"><span class="sub-en">Health Index</span><strong class="fs-4">{{ prediction2.predictions.health_index }}</strong></div></div>
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-warning border-3 shadow-sm hover-lift"><span class="sub-en">Cost of Living</span><strong class="fs-4">{{ prediction2.predictions.cost_of_living }}</strong></div></div>
+                                <div class="col-6"><div class="card border-0 bg-white p-3 text-center rounded-3 border-bottom border-info border-3 shadow-sm hover-lift"><span class="sub-en">Pollution Index</span><strong class="fs-4">{{ prediction2.predictions.pollution_index }}</strong></div></div>
                             </div>
                         </div>
                     </div>

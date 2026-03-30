@@ -8,6 +8,7 @@ from django.db.models import Q
 from .models import City, CityData, FavoriteCity
 from .visualizer import calculate_score, make_radar, make_gauge, make_trend_chart
 from .predictor import predict_city
+from datetime import datetime
 
 def city_search(request):
     """城市搜索页面"""
@@ -252,86 +253,88 @@ def fetch_city(request, city_name):
     return JsonResponse(data)
 
 def index(request):
-    """主页"""
-    # 调用 A 的函数拿到城市列表 (如 ['London', 'Tokyo', ...])
+    """主页 (全动态时间 + 排行榜)"""
     cities = get_all_cities() 
-    # 传给 index.html
-    return render(request, 'liveability/index.html', {'city_list': cities})
+    
+    # 动态获取明年年份 (2026 -> 2027)
+    predict_year = datetime.now().year + 1
+    
+    # 获取排行榜样本
+    sample_cities = ['Vienna', 'Copenhagen', 'Zurich', 'Melbourne', 'Calgary', 'Geneva', 'Sydney', 'Vancouver', 'Osaka', 'Auckland']
+    top_cities = []
+    
+    for city_name in sample_cities:
+        data = get_city_profile(city_name)
+        if data['status'] == 'success':
+            score = calculate_score(data)
+            top_cities.append({
+                'name': city_name,
+                'score': score,
+                'safety': data['static_data']['safety_index'],
+                'health': data['static_data']['health_index'],
+            })
+            
+    top_cities.sort(key=lambda x: x['score'], reverse=True)
+
+    return render(request, 'liveability/index.html', {
+        'city_list': cities,
+        'top_cities': top_cities[:10],  # 取前 10 名
+        'predict_year': predict_year,     # 动态传给主页标题
+    })
 
 def city_dashboard(request, city1, city2):
-    """城市对比页面"""
-    # 确保城市在数据库中
-    city_obj1, _ = City.objects.get_or_create(
-        name=city1,
-        defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0}
-    )
-    city_obj2, _ = City.objects.get_or_create(
-        name=city2,
-        defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0}
-    )
+    """城市对比页面 (动态预测双城数据)"""
+    # 动态年份
+    predict_year = datetime.now().year + 1
 
-    # 判断是否收藏
+    # 1. 确保城市在数据库中
+    city_obj1, _ = City.objects.get_or_create(name=city1, defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0})
+    city_obj2, _ = City.objects.get_or_create(name=city2, defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0})
+
+    # 2. 判断是否收藏
     is_favorited1 = False
     is_favorited2 = False
-
     if request.user.is_authenticated:
-        is_favorited1 = FavoriteCity.objects.filter(
-            user=request.user,
-            city=city_obj1
-        ).exists()
-        is_favorited2 = FavoriteCity.objects.filter(
-            user=request.user,
-            city=city_obj2
-        ).exists()
+        is_favorited1 = FavoriteCity.objects.filter(user=request.user, city=city_obj1).exists()
+        is_favorited2 = FavoriteCity.objects.filter(user=request.user, city=city_obj2).exists()
     
-    # 1. 获取数据
+    # 3. 获取数据
     data1 = get_city_profile(city1)
     data2 = get_city_profile(city2)
-    
-    # 2. 计算评分
     score1 = calculate_score(data1)
     score2 = calculate_score(data2)
     
-    # 3. 生成图表
+    # 4. 生成图表
     radar_html = make_radar(data1, data2)
     gauge1 = make_gauge(city1, score1)
     gauge2 = make_gauge(city2, score2)
 
-    # 4️⃣ 趋势图（新加）
+    # 5. 趋势图（城市 A）
     history1 = get_city_history(city1)
-    if history1['status'] == 'success':
-        trend_chart = make_trend_chart(city1, history1)
-    else:
-        trend_chart = '<p>暂无历史数据</p>'
+    trend_chart = make_trend_chart(city1, history1) if history1['status'] == 'success' else '<p>暂无历史数据</p>'
 
-    # 5️⃣ 预测（ML模块）
-    prediction1 = predict_city(city1, 2027)
+    # 6. ML 预测 (两座城市都要预测！)
+    prediction1 = predict_city(city1, predict_year)
+    prediction2 = predict_city(city2, predict_year)
     
-    
-    # 4. 传给前端
     return render(request, "liveability/dashboard.html", {
         "city1": city1,
         "city2": city2,
-
-        # 城市数据（用于显示详情）
         "data1": data1,
         "data2": data2,
-
         "score1": score1,
         "score2": score2,
-
-        # 图表（注意变量名要与模板一致）
-        "radar": radar_html,           # 模板中用 radar
-        "gauge1": gauge1,              # 模板中用 gauge1
-        "gauge2": gauge2,              # 模板中用 gauge2
-        "trend_chart": trend_chart,     # 模板中用 trend_chart
-        "prediction1": prediction1,     # 模板中用 prediction1
-
-        "city_obj1": city_obj1,
-        "city_obj2": city_obj2,
+        "radar": radar_html,           
+        "gauge1": gauge1,              
+        "gauge2": gauge2,              
+        "trend_chart": trend_chart,     
+        "prediction1": prediction1,     
+        "prediction2": prediction2,     # 别再落下了！
+        "predict_year": predict_year,   # 动态年份
         "is_favorited1": is_favorited1,
         "is_favorited2": is_favorited2,
     })
+    
 
 def methodology(request):
     """方法论与数据来源说明页"""

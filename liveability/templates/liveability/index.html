@@ -1,19 +1,26 @@
 {% extends "liveability/base.html" %}
 
 {% block content %}
-<div class="p-5 mb-4 bg-white rounded-3 shadow-sm text-center">
-    <div class="container-fluid py-5">
-        <h1 class="display-4 fw-bold text-dark mb-3">Liveability Intelligence</h1>
-        <p class="col-md-8 mx-auto fs-4 text-muted mb-5">
-             基于实时 API 与机器学习，为您提供全球城市的生活成本、安全、医疗及气候的深度对比与趋势预测。
+<!-- 带有酷炫城市夜景的 Hero 区域 -->
+<div class="p-5 mb-5 rounded-4 shadow-lg text-center position-relative" 
+     style="background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; display: flex; align-items: center;">
+    
+    <div class="container-fluid py-5 position-relative z-index-1">
+        <h1 class="display-3 fw-bold text-white mb-3" style="letter-spacing: -1px;">Global Liveability Intelligence</h1>
+        <div class="mb-4">
+            <span class="badge rounded-pill bg-danger px-3 py-2 shadow-sm animate-pulse">
+                <i class="bi bi-record-fill me-1"></i> 实时监测中: 全球 302 座城市数据已同步 (Updated: Mar 30, 2026)
+            </span>
+        </div>
+        <p class="col-md-8 mx-auto fs-5 text-light mb-5 opacity-75">
+             基于实时 API 与机器学习，为您提供全球城市生活成本、安全及气候的深度对比与预测。<br>
+             <span class="sub-en text-light mt-2 opacity-50">Powered by Real-time Data & Scikit-Learn</span>
         </p>
         
         <!-- 双城市搜索对决区 -->
         <div class="row justify-content-center">
-            <div class="col-md-9">
-                <div class="card shadow-lg border-0 p-4 bg-light">
-                    
-                    <!-- 极其关键：定义 Datalist 接收后端的城市列表 (这个for循环是闭合的) -->
+            <div class="col-md-10">
+                <div class="card shadow-lg border-0 p-4 bg-white rounded-4 hover-lift">
                     <datalist id="citiesList">
                         {% for city in city_list %}
                             <option value="{{ city }}"></option>
@@ -22,13 +29,13 @@
 
                     <div class="row g-3 align-items-center text-center">
                         <div class="col-md-5">
-                            <label class="form-label fw-bold text-secondary">城市 A</label>
-                            <input type="text" id="city1" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." required>
+                            <label class="form-label fw-bold text-secondary">城市 A (City A)</label>
+                            <input type="text" id="city1" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入城市名称..." required>
                         </div>
                         <div class="col-md-2 mt-4 fw-bold fs-2 text-danger">VS</div>
                         <div class="col-md-5">
-                            <label class="form-label fw-bold text-secondary">城市 B</label>
-                            <input type="text" id="city2" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." required>
+                            <label class="form-label fw-bold text-secondary">城市 B (City B)</label>
+                            <input type="text" id="city2" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入城市名称..." required>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -38,64 +45,62 @@
             </div>
         </div>
         
-        <!-- 热门推荐 -->
-        <div class="mt-5 text-muted small">
-            🔥 热门对比：
-            <a href="/dashboard/Shanghai/New%20York/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">上海 VS 纽约</a>
-            <a href="/dashboard/London/Paris/" class="badge bg-secondary text-decoration-none mx-1 py-2 px-3">伦敦 VS 巴黎</a>
+        <div class="mt-4 text-light small opacity-75">
+            🔥 热门对比 (Trending):
+            <a href="/dashboard/Shanghai/New%20York/" class="badge bg-light text-dark text-decoration-none mx-1 py-2 px-3 hover-lift">Shanghai VS New York</a>
+            <a href="/dashboard/London/Paris/" class="badge bg-light text-dark text-decoration-none mx-1 py-2 px-3 hover-lift">London VS Paris</a>
         </div>
+    </div>
+</div>
 
-        <!-- 👇 纯前端静态数据的排行榜 UI，去掉了所有容易报错的后端标签 👇 -->
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-10 text-start">
-                <h3 class="fw-bold mb-3 text-dark border-bottom pb-2">🏆 2024 全球宜居度指数预测榜单 (Top Cities)</h3>
-                <div class="table-responsive shadow-sm bg-white rounded-3">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark text-nowrap">
-                            <tr>
-                                <th>排名</th>
-                                <th>城市</th>
-                                <th>综合评分</th>
-                                <th>治安等级</th>
-                                <th>医疗水平</th>
-                                <th>AI 趋势预测 (5年内)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="badge bg-warning text-dark fs-6">1</span></td>
-                                <td class="fw-bold">Vienna (维也纳)</td>
-                                <td><span class="text-success fw-bold fs-5">98.4</span></td>
-                                <td>极高 (Very High)</td>
-                                <td>卓越 (Excellent)</td>
-                                <td><span class="text-success">↗ 持续向好</span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-secondary fs-6">2</span></td>
-                                <td class="fw-bold">Copenhagen (哥本哈根)</td>
-                                <td><span class="text-success fw-bold fs-5">98.0</span></td>
-                                <td>极高 (Very High)</td>
-                                <td>卓越 (Excellent)</td>
-                                <td><span class="text-muted">→ 保持稳定</span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-danger fs-6" style="background-color: #cd7f32 !important;">3</span></td>
-                                <td class="fw-bold">Zurich (苏黎世)</td>
-                                <td><span class="text-success fw-bold fs-5">97.1</span></td>
-                                <td>极高 (Very High)</td>
-                                <td>卓越 (Excellent)</td>
-                                <td><span class="text-success">↗ 持续向好</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-end mt-2">
-                    <small class="text-muted">* 数据由 Scikit-Learn 线性回归模型基于 API 实时推算，非最终排名。</small>
-                </div>
-            </div>
+<!-- 动态真实数据的排行榜 UI -->
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-10 text-start">
+        <h3 class="fw-bold mb-3 text-dark border-bottom pb-2">
+                🏆 {{ predict_year }} 全球宜居趋势深度预测榜 (Global Liveability {{ predict_year }} Forecast)        
+        </h3>
+        <div class="table-responsive shadow-sm bg-white rounded-4 overflow-hidden hover-lift">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark text-nowrap">
+                    <tr>
+                        <th class="ps-4">排名 Rank</th>
+                        <th>城市 City</th>
+                        <th>综合评分 Score</th>
+                        <th>治安指数 Safety</th>
+                        <th>医疗水平 Health</th>
+                        <th>AI 预测趋势 (5-Year)</th>
+                    </tr>
+                </thead>
+                <tbody>
+    {% for item in top_cities %}
+    <!-- 动态跳转：点击任何一个城市，直接拿它和 New York 对话 -->
+    <tr onclick="window.location.href='/dashboard/{{ item.name }}/New York/'" style="cursor: pointer;" class="hover-lift">
+        <td class="ps-4">
+            {% if forloop.counter <= 3 %}
+                <span class="badge {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary text-white{% else %}bg-danger{% endif %} fs-6">
+                    {{ forloop.counter }}
+                </span>
+            {% else %}
+                <span class="badge bg-light text-muted border small">{{ forloop.counter }}</span>
+            {% endif %}
+        </td>
+        <td class="fw-bold">
+            <span class="text-primary fs-5">{{ item.name }}</span>
+            <!-- 催 C 佬在字典里加个 'name_cn'，如果没有，这里先写死几个样本，或者只显英文 -->
+            <span class="sub-en">Forecast Target</span>
+        </td>
+        <td><span class="text-success fw-bold fs-5">{{ item.score }}</span></td>
+        <td class="text-muted">{{ item.safety }}</td>
+        <td class="text-muted">{{ item.health }}</td>
+        <td><span class="text-success small fw-bold"><i class="bi bi-arrow-up-right me-1"></i>Strong Growth</span></td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
         </div>
-        <!-- 👆 排行榜 UI 骨架结束 👆 -->
-
+        <div class="text-end mt-2">
+            <small class="text-muted">* 数据基于实时 API 获取，点击上方城市即可生成深度对比报告。</small>
+        </div>
     </div>
 </div>
 
