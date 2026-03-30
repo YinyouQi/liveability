@@ -11,15 +11,42 @@
             <!-- 城市 A 徽章 + 收藏按钮 (留给B的坑) -->
             <span class="badge bg-primary text-white py-2 px-3 fs-6 shadow-sm">
                 {{ city1 }} 
-                <a href="#" class="text-white text-decoration-none ms-2" title="加入收藏夹"><i class="bi bi-star"></i></a>
-            </span>
+                {% if user.is_authenticated %}
+                    {% if is_favorited1 %}
+                        <a href="{% url 'liveability:remove_favorite' city1 %}" class="text-white text-decoration-none ms-2" title="取消收藏">
+                            <i class="bi bi-star-fill"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'liveability:add_favorite' city1 %}" class="text-white text-decoration-none ms-2" title="加入收藏夹">
+                            <i class="bi bi-star"></i>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-white text-decoration-none ms-2" title="登录后收藏">
+                        <i class="bi bi-star"></i>
+                    </a>
+                {% endif %}
             
             <span class="mx-3 text-muted fw-bold fs-6">VS</span>
             
             <!-- 城市 B 徽章 + 收藏按钮 (留给B的坑) -->
             <span class="badge bg-danger text-white py-2 px-3 fs-6 shadow-sm">
                 {{ city2 }} 
-                <a href="#" class="text-white text-decoration-none ms-2" title="加入收藏夹"><i class="bi bi-star"></i></a>
+                {% if user.is_authenticated %}
+                    {% if is_favorited2 %}
+                        <a href="{% url 'liveability:remove_favorite' city2 %}" class="text-white text-decoration-none ms-2" title="取消收藏">
+                            <i class="bi bi-star-fill"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'liveability:add_favorite' city2 %}" class="text-white text-decoration-none ms-2" title="加入收藏夹">
+                            <i class="bi bi-star"></i>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-white text-decoration-none ms-2" title="登录后收藏">
+                        <i class="bi bi-star"></i>
+                    </a>
+                {% endif %}
             </span>
         </div>
     </div>

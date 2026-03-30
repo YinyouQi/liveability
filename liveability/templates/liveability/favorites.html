@@ -1,0 +1,78 @@
+{% extends "liveability/base.html" %}
+
+{% block title %}我的收藏 - 城市宜居性分析{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'liveability:index' %}">首页</a></li>
+                    <li class="breadcrumb-item active">我的收藏</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>我的收藏城市</h1>
+                <a href="{% url 'liveability:index' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 添加更多城市
+                </a>
+            </div>
+            
+            {% if favorites %}
+                <div class="row">
+                    {% for fav in favorites %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">{{ fav.city.name }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <p><strong>宜居评分:</strong> 
+                                                <span class="badge bg-success">{{ fav.score|floatformat:1 }}</span>
+                                            </p>
+                                            <p><strong>安全指数:</strong> {{ fav.data.static_data.safety_index }}</p>
+                                            <p><strong>医疗指数:</strong> {{ fav.data.static_data.health_index }}</p>
+                                            <p><strong>生活成本:</strong> {{ fav.data.static_data.cost_of_living }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p><strong>当前温度:</strong> {{ fav.data.live_data.temp }}°C</p>
+                                            <p><strong>空气质量:</strong> {{ fav.data.live_data.aqi }}</p>
+                                            <p><strong>天气:</strong> {{ fav.data.live_data.weather_desc }}</p>
+                                            <p><small>收藏时间: {{ fav.date_added|date:"Y-m-d H:i" }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'liveability:dashboard' fav.city.name 'London' %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-chart-line"></i> 对比分析
+                                        </a>
+                                        <a href="{% url 'liveability:remove_favorite' fav.city.name %}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('确定要从收藏中移除 {{ fav.city.name }} 吗？')">
+                                            <i class="fas fa-trash"></i> 移除
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <h4>暂无收藏城市</h4>
+                    <p>开始探索城市并添加您感兴趣的城市到收藏夹吧！</p>
+                    <a href="{% url 'liveability:index' %}" class="btn btn-primary mt-2">
+                        浏览城市
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

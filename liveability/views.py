@@ -1,9 +1,90 @@
 from .data_fetcher import get_city_profile, get_all_cities, get_city_history  # 加一个 get_all_cities
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
-from .models import City, CityData
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.contrib import messages
+from .models import City, CityData, FavoriteCity
 from .visualizer import calculate_score, make_radar, make_gauge, make_trend_chart
 from .predictor import predict_city
+
+@login_required
+def add_favorite(request, city_name):
+    """添加城市到收藏"""
+    try:
+        # 获取或创建城市（确保城市在数据库中）
+        city_obj, created = City.objects.get_or_create(
+            name=city_name,
+            defaults={
+                'country': 'Unknown',  # 可以根据需要设置默认值
+                'lat': 0.0,
+                'lon': 0.0
+            }
+        )
+        
+        # 检查是否已经收藏
+        favorite, created = FavoriteCity.objects.get_or_create(
+            user=request.user,
+            city=city_obj
+        )
+        
+        if created:
+            messages.success(request, f'成功收藏 {city_name}！')
+        else:
+            messages.info(request, f'{city_name} 已经在您的收藏列表中')
+            
+    except Exception as e:
+        messages.error(request, f'收藏失败: {str(e)}')
+    
+    # 返回上一页
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+@login_required
+def remove_favorite(request, city_name):
+    """从收藏中移除城市"""
+    try:
+        # 获取城市对象
+        city_obj = get_object_or_404(City, name=city_name)
+        
+        # 删除收藏记录
+        FavoriteCity.objects.filter(
+            user=request.user,
+            city=city_obj
+        ).delete()
+        
+        messages.success(request, f'已从收藏中移除 {city_name}')
+        
+    except Exception as e:
+        messages.error(request, f'移除失败: {str(e)}')
+    
+    # 返回上一页
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+@login_required
+def favorite_list(request):
+    """显示用户的收藏列表"""
+    favorites = FavoriteCity.objects.filter(user=request.user).order_by('-date_added')
+    
+    # 为每个收藏的城市获取数据
+    favorite_cities_data = []
+    for fav in favorites:
+        city_data = get_city_profile(fav.city.name)
+        if city_data['status'] == 'success':
+            score = calculate_score(city_data)
+            favorite_cities_data.append({
+                'city': fav.city,
+                'data': city_data,
+                'score': score,
+                'date_added': fav.date_added
+            })
+    
+    return render(request, 'liveability/favorites.html', {
+        'favorites': favorite_cities_data
+    })
+
+
 
 def fetch_city(request, city_name):
     data = get_city_profile(city_name)
@@ -36,6 +117,30 @@ def index(request):
 
 def city_dashboard(request, city1, city2):
     """城市对比页面"""
+    # 确保城市在数据库中
+    city_obj1, _ = City.objects.get_or_create(
+        name=city1,
+        defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0}
+    )
+    city_obj2, _ = City.objects.get_or_create(
+        name=city2,
+        defaults={'country': 'Unknown', 'lat': 0.0, 'lon': 0.0}
+    )
+
+    # 判断是否收藏
+    is_favorited1 = False
+    is_favorited2 = False
+
+    if request.user.is_authenticated:
+        is_favorited1 = FavoriteCity.objects.filter(
+            user=request.user,
+            city=city_obj1
+        ).exists()
+        is_favorited2 = FavoriteCity.objects.filter(
+            user=request.user,
+            city=city_obj2
+        ).exists()
+    
     # 1. 获取数据
     data1 = get_city_profile(city1)
     data2 = get_city_profile(city2)
@@ -78,6 +183,11 @@ def city_dashboard(request, city1, city2):
         "gauge2": gauge2,              # 模板中用 gauge2
         "trend_chart": trend_chart,     # 模板中用 trend_chart
         "prediction1": prediction1,     # 模板中用 prediction1
+
+        "city_obj1": city_obj1,
+        "city_obj2": city_obj2,
+        "is_favorited1": is_favorited1,
+        "is_favorited2": is_favorited2,
     })
 
 def methodology(request):
