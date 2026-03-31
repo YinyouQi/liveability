@@ -263,6 +263,139 @@
     </div>
     {% endif %}
 
+    <!-- ========== AI 预测分析栏目 ========== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-primary text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0">
+                        <i class="bi bi-robot me-2"></i>AI 智能预测分析
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if prediction and prediction.status == 'success' %}
+
+
+                        <!-- 预测指标卡片 -->
+                        <div class="row g-4">
+                            <!-- 安全指数预测 -->
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="bi bi-shield-check text-success fs-1"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">安全指数预测</h6>
+                                        <div class="display-6 fw-bold text-success mb-2">
+                                            {{ prediction.predictions.safety_index }}
+                                        </div>
+
+
+                                        <div class="mt-2">
+                                            {% if prediction.predictions.safety_index >= 70 %}
+                                                <span class="badge bg-success">安全</span>
+                                            {% elif prediction.predictions.safety_index >= 50 %}
+                                                <span class="badge bg-warning">中等</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">需注意</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 医疗指数预测 -->
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="bi bi-heart-pulse text-danger fs-1"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">医疗指数预测</h6>
+                                        <div class="display-6 fw-bold text-danger mb-2">
+                                            {{ prediction.predictions.health_index }}
+                                        </div>
+                            
+
+                                        <div class="mt-2">
+                                            {% if prediction.predictions.health_index >= 70 %}
+                                                <span class="badge bg-success">优秀</span>
+                                            {% elif prediction.predictions.health_index >= 50 %}
+                                                <span class="badge bg-warning">一般</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">待改善</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 生活成本预测 -->
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="bi bi-wallet2 text-warning fs-1"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">生活成本预测</h6>
+                                        <div class="display-6 fw-bold text-warning mb-2">
+                                            {{ prediction.predictions.cost_of_living }}
+                                        </div>
+                                        
+
+                                        <div class="mt-2">
+                                            {% if prediction.predictions.cost_of_living >= 70 %}
+                                                <span class="badge bg-danger">较高</span>
+                                            {% elif prediction.predictions.cost_of_living >= 50 %}
+                                                <span class="badge bg-warning">中等</span>
+                                            {% else %}
+                                                <span class="badge bg-success">较低</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 污染指数预测 -->
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="bi bi-droplet text-info fs-1"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">污染指数预测</h6>
+                                        <div class="display-6 fw-bold text-info mb-2">
+                                            {{ prediction.predictions.pollution_index }}
+                                        </div>
+                                        
+                                        <div class="mt-2">
+                                            {% if prediction.predictions.pollution_index <= 30 %}
+                                                <span class="badge bg-success">优良</span>
+                                            {% elif prediction.predictions.pollution_index <= 60 %}
+                                                <span class="badge bg-warning">中等</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">较差</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    
+                    {% else %}
+                        <!-- 如果没有预测数据，显示提示 -->
+                        <div class="text-center py-5">
+                            <i class="bi bi-robot display-1 text-muted mb-3 d-block"></i>
+                            <h5 class="text-muted">暂无预测数据</h5>
+                            <p class="text-muted">该城市的历史数据不足，无法生成AI预测分析</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 操作按钮 - 修改开始对比的跳转逻辑 -->
     <div class="row">
         <div class="col-12 text-center">
