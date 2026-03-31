@@ -313,9 +313,17 @@ def city_dashboard(request, city1, city2):
     history1 = get_city_history(city1)
     trend_chart = make_trend_chart(city1, history1) if history1['status'] == 'success' else '<p>暂无历史数据</p>'
 
-    # 6. ML 预测 (两座城市都要预测！)
-    prediction1 = predict_city(city1, predict_year)
-    prediction2 = predict_city(city2, predict_year)
+    # 城市2的历史趋势（新增）
+    history2 = get_city_history(city2)
+    if history2['status'] == 'success':
+        trend_chart2 = make_trend_chart(city2, history2)
+    else:
+        trend_chart2 = '<p>暂无历史数据</p>'
+
+    # 5️⃣ 预测（ML模块）- 添加城市B的预测
+    prediction1 = predict_city(city1, 2027)
+    prediction2 = predict_city(city2, 2027)  # ✅ 新增：城市B的预测
+    
     
     return render(request, "liveability/dashboard.html", {
         "city1": city1,
@@ -324,13 +332,18 @@ def city_dashboard(request, city1, city2):
         "data2": data2,
         "score1": score1,
         "score2": score2,
-        "radar": radar_html,           
-        "gauge1": gauge1,              
-        "gauge2": gauge2,              
-        "trend_chart": trend_chart,     
-        "prediction1": prediction1,     
-        "prediction2": prediction2,     # 别再落下了！
-        "predict_year": predict_year,   # 动态年份
+
+        # 图表（注意变量名要与模板一致）
+        "radar": radar_html,           # 模板中用 radar
+        "gauge1": gauge1,              # 模板中用 gauge1
+        "gauge2": gauge2,              # 模板中用 gauge2
+        "trend_chart": trend_chart,     # 模板中用 trend_chart
+        "trend_chart2": trend_chart2,  # 城市2的趋势图（新增
+        "prediction1": prediction1,     # 模板中用 prediction1
+        "prediction2": prediction2,     # ✅ 新增：模板中用 prediction2s
+
+        "city_obj1": city_obj1,
+        "city_obj2": city_obj2,
         "is_favorited1": is_favorited1,
         "is_favorited2": is_favorited2,
     })

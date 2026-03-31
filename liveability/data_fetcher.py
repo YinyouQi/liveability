@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import numpy as np
 import requests
+import time
 from datetime import datetime
 
 
@@ -157,16 +158,47 @@ def _load_static_data(city_name_en):
         }
 
 
+# 缓存字典
+_weather_cache = {}
+_cache_ttl = 1800  # 缓存30分钟
+
+# 请求记录（用于速率限制）
+_last_request_time = 0
+_request_interval = 1  # 每秒最多1次请求
+
+
+def _wait_for_rate_limit():
+    """等待速率限制"""
+    global _last_request_time
+    now = time.time()
+    elapsed = now - _last_request_time
+    if elapsed < _request_interval:
+        time.sleep(_request_interval - elapsed)
+    _last_request_time = time.time()
+
 def _fetch_live_data(city_name_en):
     """
     获取实时数据：天气 + AQI
     使用 OpenWeatherMap API + AQICN API
+    包含：缓存、速率限制、重试机制、Mock保底
     """
     import requests
     
-    # OpenWeatherMap API Key
+    city_key = city_name_en.lower()
+    now = time.time()
+    
+    # 1. 检查缓存
+    if city_key in _weather_cache:
+        cached_data, cached_time = _weather_cache[city_key]
+        if now - cached_time < _cache_ttl:
+            print(f"使用缓存数据: {city_name_en}")
+            return cached_data
+    
+    # 2. 速率限制
+    _wait_for_rate_limit()
+    
+    # API Keys
     WEATHER_API_KEY = "9481998945f63ef76d37cbee612af58a"
-    # AQICN API Token
     AQI_TOKEN = "670cca4f211cfd77bcdd0e1366c476f50d0cd591"
     
     # 初始化返回数据
@@ -176,22 +208,28 @@ def _fetch_live_data(city_name_en):
         'weather_desc': 'Weather data unavailable'
     }
     
-    # 1. 获取天气数据
-    try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name_en}&appid={WEATHER_API_KEY}&units=metric"
-        response = requests.get(url, timeout=5)
-        
-        if response.status_code == 200:
-            data = response.json()
-            result['temp'] = data['main']['temp']
-            result['weather_desc'] = data['weather'][0]['description']
-        else:
-            print(f"天气 API 返回错误: {response.status_code}")
-    except Exception as e:
-        print(f"天气 API 调用失败: {e}")
+    # 3. 获取天气数据（带重试）
+    for retry in range(2):
+        try:
+            url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name_en}&appid={WEATHER_API_KEY}&units=metric"
+            response = requests.get(url, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                result['temp'] = round(data['main']['temp'], 1)
+                result['weather_desc'] = data['weather'][0]['description']
+                break
+            else:
+                print(f"天气 API 返回错误: {response.status_code}")
+                if retry == 0:
+                    time.sleep(1)
+        except Exception as e:
+            print(f"天气 API 调用失败 (重试 {retry+1}/2): {e}")
+            if retry == 0:
+                time.sleep(1)
     
-    # 2. 获取空气质量数据
-    if AQI_TOKEN and AQI_TOKEN != "YOUR_AQI_TOKEN_HERE":
+    # 4. 获取空气质量数据（带重试）
+    for retry in range(2):
         try:
             aqi_url = f"https://api.waqi.info/feed/{city_name_en}/?token={AQI_TOKEN}"
             response = requests.get(aqi_url, timeout=5)
@@ -200,27 +238,45 @@ def _fetch_live_data(city_name_en):
                 data = response.json()
                 if data.get('status') == 'ok':
                     result['aqi'] = data['data']['aqi']
+                    break
                 else:
                     print(f"AQI API 返回错误: {data.get('data')}")
             else:
                 print(f"AQI API 返回状态码: {response.status_code}")
+            if retry == 0:
+                time.sleep(1)
         except Exception as e:
-            print(f"AQI API 调用失败: {e}")
+            print(f"AQI API 调用失败 (重试 {retry+1}/2): {e}")
+            if retry == 0:
+                time.sleep(1)
 
-        # 如果最终还是 None，强制兜底
-        if result['aqi'] is None:
-            result['aqi'] = 50
-            
-    else:
-        # 使用占位数据
-        mock_aqi = {
-            'london': 45, 'shanghai': 65, 'new york': 38,
-            'beijing': 120, 'tokyo': 55, 'paris': 42
-        }
-        city_key = city_name_en.lower()
-        result['aqi'] = mock_aqi.get(city_key, 50)
+            # 5. Mock 数据兜底 (API 完全失败时使用)
+            # 天气 Mock
+            if result['temp'] is None:
+                mock_weather = {
+                    'london': {'temp': 15.2, 'weather_desc': 'Clouds'},
+                    'shanghai': {'temp': 22.0, 'weather_desc': 'Sunny'},
+                    'new york': {'temp': 18.5, 'weather_desc': 'Clear'},
+                    'beijing': {'temp': 18.0, 'weather_desc': 'Haze'},
+                    'tokyo': {'temp': 20.0, 'weather_desc': 'Clear'},
+                    'paris': {'temp': 16.0, 'weather_desc': 'Clouds'}
+                }
+                if city_key in mock_weather:
+                    result['temp'] = mock_weather[city_key]['temp']
+                    result['weather_desc'] = mock_weather[city_key]['weather_desc']
+
+            # 空气质量 Mock
+            if result['aqi'] is None:
+                mock_aqi = {
+                    'london': 45, 'shanghai': 65, 'new york': 38,
+                    'beijing': 120, 'tokyo': 55, 'paris': 42
+                }
+                result['aqi'] = mock_aqi.get(city_key, 50)
 
     
+    
+    # 6. 保存到缓存
+    _weather_cache[city_key] = (result, time.time())
     
     return result
 
