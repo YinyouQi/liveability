@@ -110,7 +110,7 @@ def make_radar(city1_profile, city2_profile):
     ))
     
     fig.update_layout(
-        title=f"{city1_profile['city']} vs {city2_profile['city']} Livability Comparison",
+        title=f"{city1_profile['city']} vs {city2_profile['city']} 宜居度对比",
         title_font_size=20,
         polar=dict(
             radialaxis=dict(visible=True, range=[0, 100], gridcolor='#e9ecef'),
@@ -165,12 +165,12 @@ def make_gauge(city_name, score):
         mode="gauge+number",
         value=score,
         title={
-            'text': f"{city_name}<br>Livability Score",
+            'text': f"{city_name}<br>宜居度评分",
             'font': {'size': 24, 'color': title_color}
         },
         number={
-            'font': {'size': 18, 'color': bar_color},
-            'suffix': " pts"
+            'font': {'size': 36, 'color': bar_color},
+            'suffix': " 分"
         },
         gauge={
             'axis': {'range': [0, 100], 'tickwidth': 2, 'tickcolor': "#34495e"},
@@ -194,7 +194,7 @@ def make_gauge(city_name, score):
 # ===== 4. 趋势图 =====
 def make_trend_chart(city_name, city_history):
     if city_history['status'] != 'success':
-        return "<p>Unable to get historical data</p>"
+        return "<p>无法获取历史数据</p>"
     
     years_data = city_history['years_data']
     
@@ -225,19 +225,19 @@ def make_trend_chart(city_name, city_history):
         df, 
         x='year', 
         y='score',
-        title=f'{city_name} Livability Trend',
+        title=f'{city_name} 宜居度变化趋势',
         markers=True,
         line_shape='linear'
     )
     
     fig.update_traces(
-        line=dict(color='#4C72B0', width=3),
-        marker=dict(size=8, color='#DD8452')
+        line=dict(color='#00008B', width=4),
+        marker=dict(size=10, color='#ff7f0e')
     )
     
     fig.update_layout(
-        xaxis_title='Year',
-        yaxis_title='Livability Score',
+        xaxis_title='年份',
+        yaxis_title='宜居度评分',
         yaxis_range=[0, 100],
         hovermode='x',
         plot_bgcolor='#f8f9fa',
@@ -246,10 +246,11 @@ def make_trend_chart(city_name, city_history):
         font=dict(family="Arial", size=12)
     )
     
-    fig.add_hline(y=70, line_dash="dash", line_color="green", 
-                  annotation_text="Excellent (70+)", annotation_position="top right")
-    fig.add_hline(y=50, line_dash="dash", line_color="#C44E52",
-                  annotation_text="Pass (50+)", annotation_position="bottom right")
+    # 基准线
+    fig.add_hline(y=70, line_dash="dash", line_color="lightgreen", 
+                  annotation_text="优秀线 (70分)", annotation_position="top right")
+    fig.add_hline(y=50, line_dash="dash", line_color="lightcoral",
+                  annotation_text="及格线 (50分)", annotation_position="bottom right")
     
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
@@ -259,7 +260,7 @@ if __name__ == '__main__':
     
     tokyo = get_city_profile('Tokyo')
     score = calculate_score(tokyo)
-    print(f"东京评分: {score}")
+    print(f"东京 评分: {score}")
     
     gauge_html = make_gauge('Tokyo', score)
     with open('gauge_tokyo.html', 'w', encoding='utf-8') as f:
