@@ -110,7 +110,7 @@ def make_radar(city1_profile, city2_profile):
     ))
     
     fig.update_layout(
-        title=f"{city1_profile['city']} vs {city2_profile['city']} 宜居度对比",
+        title=f"{city1_profile['city']} vs {city2_profile['city']} Livability Comparison",
         title_font_size=20,
         polar=dict(
             radialaxis=dict(visible=True, range=[0, 100], gridcolor='#e9ecef'),
@@ -194,7 +194,7 @@ def make_gauge(city_name, score):
 # ===== 4. 趋势图 =====
 def make_trend_chart(city_name, city_history):
     if city_history['status'] != 'success':
-        return "<p>无法获取历史数据</p>"
+        return "<p>Unable to get historical data</p>"
     
     years_data = city_history['years_data']
     
@@ -231,8 +231,8 @@ def make_trend_chart(city_name, city_history):
     )
     
     fig.update_traces(
-        line=dict(color='#3498db', width=3),
-        marker=dict(size=8, color='#e74c3c')
+        line=dict(color='#4C72B0', width=3),
+        marker=dict(size=8, color='#DD8452')
     )
     
     fig.update_layout(
@@ -248,7 +248,7 @@ def make_trend_chart(city_name, city_history):
     
     fig.add_hline(y=70, line_dash="dash", line_color="green", 
                   annotation_text="Excellent (70+)", annotation_position="top right")
-    fig.add_hline(y=50, line_dash="dash", line_color="orange",
+    fig.add_hline(y=50, line_dash="dash", line_color="#C44E52",
                   annotation_text="Pass (50+)", annotation_position="bottom right")
     
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
