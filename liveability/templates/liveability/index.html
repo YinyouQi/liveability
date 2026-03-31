@@ -23,7 +23,7 @@
                     <div class="row g-3 align-items-center text-center">
                         <div class="col-md-5">
                             <label class="form-label fw-bold text-secondary">城市 A</label>
-                            <input type="text" id="city1" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." required>
+                           <input type="text" id="city1" list="citiesList" class="form-control form-control-lg border-primary shadow-sm" placeholder="输入并选择城市..." value="{{ city1 }}" required>
                         </div>
                         <div class="col-md-2 mt-4 fw-bold fs-2 text-danger">VS</div>
                         <div class="col-md-5">
@@ -104,10 +104,21 @@ function goToDashboard() {
     const c1 = document.getElementById('city1').value.trim();
     const c2 = document.getElementById('city2').value.trim();
     if(c1 && c2) {
-        window.location.href = `/dashboard/${c1}/${c2}/`;
+        window.location.href = `/dashboard/${encodeURIComponent(c1)}/${encodeURIComponent(c2)}/`;
     } else {
         alert("请输入两个城市名称（英文）进行对比！");
     }
 }
+
+// 页面加载时从 URL 参数获取城市名并填充
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const city1Param = urlParams.get('city1');
+    if (city1Param) {
+        document.getElementById('city1').value = city1Param;
+        // 自动聚焦到第二个输入框
+        document.getElementById('city2').focus();
+    }
+});
 </script>
 {% endblock content %}

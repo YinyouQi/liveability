@@ -255,8 +255,11 @@ def index(request):
     """主页"""
     # 调用 A 的函数拿到城市列表 (如 ['London', 'Tokyo', ...])
     cities = get_all_cities() 
-    # 传给 index.html
-    return render(request, 'liveability/index.html', {'city_list': cities})
+    city1 = request.GET.get('city1', '')  # 从URL参数获取城市名
+    return render(request, 'liveability/index.html', {
+        'city_list': cities,
+        'city1': city1  # 传递给模板
+    })
 
 def city_dashboard(request, city1, city2):
     """城市对比页面"""
@@ -304,8 +307,16 @@ def city_dashboard(request, city1, city2):
     else:
         trend_chart = '<p>暂无历史数据</p>'
 
-    # 5️⃣ 预测（ML模块）
+    # 城市2的历史趋势（新增）
+    history2 = get_city_history(city2)
+    if history2['status'] == 'success':
+        trend_chart2 = make_trend_chart(city2, history2)
+    else:
+        trend_chart2 = '<p>暂无历史数据</p>'
+
+    # 5️⃣ 预测（ML模块）- 添加城市B的预测
     prediction1 = predict_city(city1, 2027)
+    prediction2 = predict_city(city2, 2027)  # ✅ 新增：城市B的预测
     
     
     # 4. 传给前端
@@ -325,7 +336,9 @@ def city_dashboard(request, city1, city2):
         "gauge1": gauge1,              # 模板中用 gauge1
         "gauge2": gauge2,              # 模板中用 gauge2
         "trend_chart": trend_chart,     # 模板中用 trend_chart
+        "trend_chart2": trend_chart2,  # 城市2的趋势图（新增
         "prediction1": prediction1,     # 模板中用 prediction1
+        "prediction2": prediction2,     # ✅ 新增：模板中用 prediction2s
 
         "city_obj1": city_obj1,
         "city_obj2": city_obj2,

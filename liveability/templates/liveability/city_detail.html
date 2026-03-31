@@ -46,15 +46,25 @@
 
     <!-- 主要数据卡片 -->
     <div class="row g-4 mb-4">
-        <!-- 评分仪表盘 -->
+        <!-- 评分仪表盘 - 修改进度条显示 -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body text-center">
                     <h5 class="card-title text-muted mb-3">综合宜居评分</h5>
                     <div class="display-1 fw-bold text-success mb-3">{{ score|floatformat:1 }}</div>
-                    <div class="progress mb-3" style="height: 10px;">
+                    
+                    <!-- 添加评分等级说明 -->
+                    <div class="mt-3">
+                        {% if score >= 80 %}
+                            <span class="badge bg-success">非常宜居</span>
+                        {% elif score >= 60 %}
+                            <span class="badge bg-info">较为宜居</span>
+                        {% elif score >= 40 %}
+                            <span class="badge bg-warning">中等宜居</span>
+                        {% else %}
+                            <span class="badge bg-danger">宜居性较低</span>
+                        {% endif %}
                     </div>
-                    <p class="text-muted small">评分范围 0-100，分数越高越宜居</p>
                 </div>
             </div>
         </div>
@@ -84,39 +94,28 @@
             </div>
         </div>
 
-        <!-- 快捷对比 -->
-<div class="col-md-4">
-    <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-white border-0 pt-3 pb-0">
-            <h5 class="mb-0"><i class="bi bi-graph-up text-primary me-2"></i>快速对比</h5>
-        </div>
-        <div class="card-body">
-            <p class="text-muted mb-3">
-                {% if user.is_authenticated and similar_cities %}
-                {% else %}
-                    推荐对比城市
-                {% endif %}
-            </p>
-            <div class="d-flex flex-wrap gap-2">
-                {% for city in similar_cities %}
-                    <a href="{% url 'liveability:dashboard' city_name city %}" 
-                       class="btn btn-outline-secondary btn-sm">
-                        VS {{ city }}
-                    </a>
-                {% endfor %}
+        <!-- 快捷对比 - 修改跳转逻辑 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h5 class="mb-0"><i class="bi bi-graph-up text-primary me-2"></i>快速对比</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">选择其他城市进行对比分析</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for city in similar_cities %}
+                            <a href="{% url 'liveability:dashboard' city_name city %}" 
+                               class="btn btn-outline-secondary btn-sm">
+                                VS {{ city }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            {% if not similar_cities %}
-                <p class="text-muted small mt-3 mb-0">
-                    <i class="bi bi-info-circle me-1"></i>
-                    暂无推荐城市，请先收藏其他城市
-                </p>
-            {% endif %}
         </div>
-    </div>
-</div>
     </div>
 
-    <!-- 静态指标详情 -->
+    <!-- 静态指标详情 - 小图标和文字同一排，数值在下一排 -->
     <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
@@ -125,58 +124,120 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
+                        <!-- 安全指数 -->
                         <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-shield-check text-success"></i> 安全指数</span>
-                                    <strong>{{ city_data.static_data.safety_index }}</strong>
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-shield-check text-success fs-4 me-2"></i>
+                                    <span class="text-muted">安全指数</span>
                                 </div>
-                                <div class="progress">
+                                <div>
+                                    <strong class="fs-2">{{ city_data.static_data.safety_index }}</strong>
+                                    <div class="mt-2">
+                                        {% if city_data.static_data.safety_index >= 70 %}
+                                            <span class="badge bg-success">安全</span>
+                                        {% elif city_data.static_data.safety_index >= 50 %}
+                                            <span class="badge bg-warning">中等</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">需注意</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- 医疗指数 -->
                         <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-heart-pulse text-danger"></i> 医疗指数</span>
-                                    <strong>{{ city_data.static_data.health_index }}</strong>
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-heart-pulse text-danger fs-4 me-2"></i>
+                                    <span class="text-muted">医疗指数</span>
                                 </div>
-                                <div class="progress">
+                                <div>
+                                    <strong class="fs-2">{{ city_data.static_data.health_index }}</strong>
+                                    <div class="mt-2">
+                                        {% if city_data.static_data.health_index >= 70 %}
+                                            <span class="badge bg-success">优秀</span>
+                                        {% elif city_data.static_data.health_index >= 50 %}
+                                            <span class="badge bg-warning">一般</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">待改善</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- 生活成本 -->
                         <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-wallet2 text-warning"></i> 生活成本</span>
-                                    <strong>{{ city_data.static_data.cost_of_living }}</strong>
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-wallet2 text-warning fs-4 me-2"></i>
+                                    <span class="text-muted">生活成本</span>
                                 </div>
-                                <div class="progress">
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-house"></i> 房价收入比</span>
-                                    <strong>{{ city_data.static_data.property_ratio }}</strong>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-car-front"></i> 通勤时间指数</span>
-                                    <strong>{{ city_data.static_data.traffic_time }}</strong>
+                                <div>
+                                    <strong class="fs-2">{{ city_data.static_data.cost_of_living }}</strong>
+                                    <div class="mt-2">
+                                        {% if city_data.static_data.cost_of_living >= 70 %}
+                                            <span class="badge bg-danger">较高</span>
+                                        {% elif city_data.static_data.cost_of_living >= 50 %}
+                                            <span class="badge bg-warning">中等</span>
+                                        {% else %}
+                                            <span class="badge bg-success">较低</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="bg-light p-3 rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="bi bi-tree"></i> 气候指数</span>
-                                    <strong>{{ city_data.static_data.climate_index }}</strong>
+                        
+                        <!-- 房价收入比 -->
+                        <div class="col-md-3">
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-house fs-5 me-2"></i>
+                                    <span class="text-muted">房价收入比</span>
+                                </div>
+                                <div>
+                                    <strong class="fs-3">{{ city_data.static_data.property_ratio }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 通勤时间指数 -->
+                        <div class="col-md-3">
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-car-front fs-5 me-2"></i>
+                                    <span class="text-muted">通勤时间指数</span>
+                                </div>
+                                <div>
+                                    <strong class="fs-3">{{ city_data.static_data.traffic_time }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 气候指数 -->
+                        <div class="col-md-3">
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-tree fs-5 me-2"></i>
+                                    <span class="text-muted">气候指数</span>
+                                </div>
+                                <div>
+                                    <strong class="fs-3">{{ city_data.static_data.climate_index }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 污染指数 -->
+                        <div class="col-md-3">
+                            <div class="bg-light p-3 rounded text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-droplet fs-5 me-2"></i>
+                                    <span class="text-muted">污染指数</span>
+                                </div>
+                                <div>
+                                    <strong class="fs-3">{{ city_data.static_data.pollution_index }}</strong>
                                 </div>
                             </div>
                         </div>
@@ -202,46 +263,13 @@
     </div>
     {% endif %}
 
-    <!-- 预测详情 -->
-    {% if prediction and prediction.status == 'success' %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 bg-dark text-white">
-                <div class="card-body">
-                    <h5 class="mb-3">
-                        <i class="bi bi-robot me-2"></i>AI 预测分析 ({{ prediction.predict_year }}年)
-                    </h5>
-                    <div class="row g-3">
-                        <div class="col-md-3 text-center">
-                            <small class="text-muted d-block">安全指数</small>
-                            <strong class="fs-4">{{ prediction.predictions.safety_index }}</strong>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <small class="text-muted d-block">医疗指数</small>
-                            <strong class="fs-4">{{ prediction.predictions.health_index }}</strong>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <small class="text-muted d-block">生活成本</small>
-                            <strong class="fs-4">{{ prediction.predictions.cost_of_living }}</strong>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <small class="text-muted d-block">污染指数</small>
-                            <strong class="fs-4">{{ prediction.predictions.pollution_index }}</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- 操作按钮 -->
+    <!-- 操作按钮 - 修改开始对比的跳转逻辑 -->
     <div class="row">
         <div class="col-12 text-center">
             <a href="{% url 'liveability:city_search' %}" class="btn btn-secondary btn-lg px-5 me-3">
                 <i class="bi bi-search me-2"></i>继续搜索
             </a>
-            <a href="{% url 'liveability:dashboard' city_name 'London' %}" class="btn btn-primary btn-lg px-5">
+            <a href="{% url 'liveability:index' %}?city1={{ city_name }}" class="btn btn-primary btn-lg px-5">
                 <i class="bi bi-bar-chart me-2"></i>开始对比
             </a>
         </div>
