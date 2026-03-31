@@ -55,12 +55,12 @@
 
 <!-- 动态真实数据的排行榜 UI -->
 <div class="row justify-content-center mt-5 mb-5">
-    <div class="col-md-10 text-start">
+    <div class="col-12 text-start">
         <h3 class="fw-bold mb-3 text-dark border-bottom pb-2">
                 🏆 {{ predict_year }} 全球宜居趋势深度预测榜 (Global Liveability {{ predict_year }} Forecast)        
         </h3>
-        <div class="table-responsive shadow-sm bg-white rounded-4 overflow-hidden hover-lift">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="table table-hover align-middle mb-0" style="min-width: 900px;"> <!-- 强制最小宽度防止挤压 -->
                 <thead class="table-dark text-nowrap">
                     <tr>
                         <th class="ps-4">排名 Rank</th>

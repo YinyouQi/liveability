@@ -13,55 +13,41 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-end mb-4 pb-3 border-bottom">
+<div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div>
-        <h2 class="fw-bold text-dark mb-2">
+        <h2 class="fw-bold text-dark mb-1">
             <i class="bi bi-globe-americas text-primary me-2"></i>全球城市智能洞察报告
         </h2>
-        <div class="d-flex align-items-center fs-5 mt-3">
-            <!-- 城市 A 徽章 + 收藏按钮 (留给B的坑) -->
-            <span class="badge bg-primary text-white py-2 px-3 fs-6 shadow-sm">
-                {{ city1 }} 
+        
+        <div class="d-flex align-items-center mt-3">
+            <!-- 城市 A 胶囊 -->
+            <div class="badge rounded-pill bg-primary shadow-sm px-3 py-2 d-flex align-items-center">
+                <span class="fs-6 fw-bold text-white">{{ city1 }}</span>
                 {% if user.is_authenticated %}
-                    {% if is_favorited1 %}
-                        <a href="{% url 'liveability:remove_favorite' city1 %}" class="text-white text-decoration-none ms-2" title="取消收藏">
-                            <i class="bi bi-star-fill"></i>
-                        </a>
-                    {% else %}
-                        <a href="{% url 'liveability:add_favorite' city1 %}" class="text-white text-decoration-none ms-2" title="加入收藏夹">
-                            <i class="bi bi-star"></i>
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="text-white text-decoration-none ms-2" title="登录后收藏">
-                        <i class="bi bi-star"></i>
+                    <a href="{% url 'liveability:'|add:city1|add:'_favorite' %}" class="ms-2 text-white opacity-75 hover-opacity-100">
+                        {% if is_favorited1 %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
                     </a>
                 {% endif %}
-            
-            <span class="mx-3 text-muted fw-bold fs-6">VS</span>
-            
-            <!-- 城市 B 徽章 + 收藏按钮 (留给B的坑) -->
-            <span class="badge bg-danger text-white py-2 px-3 fs-6 shadow-sm">
-                {{ city2 }} 
+            </div>
+
+            <!-- 精致的 VS 分隔符 -->
+            <div class="mx-3 d-flex align-items-center justify-content-center bg-white border rounded-circle shadow-sm" style="width: 32px; height: 32px;">
+                <span class="text-danger fw-bold small" style="font-style: italic;">VS</span>
+            </div>
+
+            <!-- 城市 B 胶囊 -->
+            <div class="badge rounded-pill bg-danger shadow-sm px-3 py-2 d-flex align-items-center">
+                <span class="fs-6 fw-bold text-white">{{ city2 }}</span>
                 {% if user.is_authenticated %}
-                    {% if is_favorited2 %}
-                        <a href="{% url 'liveability:remove_favorite' city2 %}" class="text-white text-decoration-none ms-2" title="取消收藏">
-                            <i class="bi bi-star-fill"></i>
-                        </a>
-                    {% else %}
-                        <a href="{% url 'liveability:add_favorite' city2 %}" class="text-white text-decoration-none ms-2" title="加入收藏夹">
-                            <i class="bi bi-star"></i>
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="text-white text-decoration-none ms-2" title="登录后收藏">
-                        <i class="bi bi-star"></i>
+                    <a href="{% url 'liveability:'|add:city2|add:'_favorite' %}" class="ms-2 text-white opacity-75 hover-opacity-100">
+                        {% if is_favorited2 %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
                     </a>
                 {% endif %}
-            </span>
+            </div>
         </div>
     </div>
-    <a href="{% url 'liveability:index' %}" class="btn btn-outline-dark px-4 shadow-sm fw-bold">
+    
+    <a href="{% url 'liveability:index' %}" class="btn btn-outline-dark px-4 shadow-sm fw-bold rounded-pill">
         <i class="bi bi-arrow-left me-2"></i>返回搜索
     </a>
 </div>

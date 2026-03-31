@@ -1,21 +1,48 @@
 {% extends 'liveability/base.html' %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="mb-4">登录</h2>
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                Your username and password didn't match. Please try again.
-            </div>
-        {% endif %}
-    
-        <form action="{% url 'accounts:login' %}" method='post'>
-            {% csrf_token %}
-            {{ form.as_div }}
-            <button type="submit" class="btn btn-primary">Log in</button>
 
-            <input type="hidden" name="next" value="{% url 'liveability:index' %}">
-        </form>
+{% block content %}
+<div class="container-fluid px-0" style="margin-top: -1.5rem;">
+    <div class="row g-0" style="min-height: 90vh;">
+        <!-- 左侧：视觉冲击区 (仅在桌面端显示) -->
+        <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-white p-5" 
+             style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1449034446853-66c86144b0ad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+            <div class="text-center">
+                <h1 class="display-3 fw-bold mb-4">探索您的理想之城</h1>
+                <p class="fs-4 opacity-75">通过大数据与 AI，预见未来的居住体验。</p>
+                <div class="mt-5">
+                    <span class="badge rounded-pill bg-light text-dark px-4 py-2 me-2">实时数据</span>
+                    <span class="badge rounded-pill bg-light text-dark px-4 py-2 me-2">机器学习</span>
+                    <span class="badge rounded-pill bg-light text-dark px-4 py-2">全球覆盖</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：登录表单区 -->
+        <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center bg-white p-5">
+            <div class="w-100" style="max-width: 450px;">
+                <div class="mb-5">
+                    <h2 class="fw-bold text-dark display-6">欢迎回来</h2>
+                    <p class="text-muted">请登录您的账号以查看收藏的城市分析</p>
+                </div>
+
+                <form action="{% url 'accounts:login' %}" method='post'>
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark">用户名 Username</label>
+                        <input type="text" name="username" class="form-control form-control-lg border-2" style="padding: 1rem;" placeholder="Your username" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark">密码 Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg border-2" style="padding: 1rem;" placeholder="Your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-3 fw-bold fs-5 shadow-lg rounded-3 mb-4">
+                        立即登录 <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </form>
+                
+                <p class="text-center text-muted">还没有账号？ <a href="{% url 'accounts:register' %}" class="fw-bold text-primary text-decoration-none">免费注册</a></p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock content %}
