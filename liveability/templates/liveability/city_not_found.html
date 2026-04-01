@@ -1,27 +1,19 @@
 {% extends "liveability/base.html" %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="card shadow-sm border-0">
-                <div class="card-body py-5">
-                    <i class="bi bi-exclamation-triangle display-1 text-warning mb-4 d-block"></i>
-                    <h1 class="display-5 mb-3">城市未找到</h1>
-                    <p class="lead text-muted mb-4">
-                        抱歉，未找到城市 "{{ city_name }}" 的相关数据
-                    </p>
-                    <p class="mb-4">请检查城市名称拼写是否正确，或尝试搜索其他城市</p>
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="{% url 'liveability:city_search' %}" class="btn btn-primary btn-lg px-4">
-                            <i class="bi bi-search me-2"></i>重新搜索
-                        </a>
-                        <a href="{% url 'liveability:index' %}" class="btn btn-outline-secondary btn-lg px-4">
-                            <i class="bi bi-house me-2"></i>返回首页
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-6 text-center">
+        <i class="bi bi-map display-1 text-muted opacity-25 mb-4 d-block"></i>
+        <h1 class="display-5 fw-bold text-dark mb-3">未触达的坐标</h1>
+        <p class="fs-5 text-muted mb-5">
+            抱歉，我们的卫星暂时未能获取 <strong>"{{ city_name }}"</strong> 的完整数据。<br>
+            <span class="small opacity-75">请检查拼写（需使用英文名），或换个城市探索。</span>
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'liveability:city_search' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                <i class="bi bi-search me-2"></i>重新搜索
+            </a>
+            <a href="{% url 'liveability:index' %}" class="btn btn-outline-dark btn-lg rounded-pill px-5">返回首页</a>
         </div>
     </div>
 </div>

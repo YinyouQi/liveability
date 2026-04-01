@@ -1,78 +1,69 @@
 {% extends "liveability/base.html" %}
 
-{% block title %}我的收藏 - 城市宜居性分析{% endblock %}
+{% block title %}我的收藏 - Liveability Radar{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'liveability:index' %}">首页</a></li>
-                    <li class="breadcrumb-item active">我的收藏</li>
-                </ol>
-            </nav>
-            
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>我的收藏城市</h1>
-                <a href="{% url 'liveability:index' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> 添加更多城市
-                </a>
+<div class="d-flex justify-content-between align-items-end mb-4 pb-3 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-star-fill text-warning me-2"></i>我的收藏夹
+        </h2>
+        <p class="text-muted mb-0"><span class="sub-en">My Favorite Cities</span></p>
+    </div>
+    <a href="{% url 'liveability:city_search' %}" class="btn btn-dark shadow-sm fw-bold rounded-pill px-4">
+        <i class="bi bi-plus-lg me-2"></i>添加城市
+    </a>
+</div>
+
+{% if favorites %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for fav in favorites %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 rounded-4 hover-lift bg-white">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold text-primary mb-0">{{ fav.city.name }}</h4>
+                <span class="badge bg-success fs-6 shadow-sm">{{ fav.score|floatformat:1 }} pts</span>
             </div>
             
-            {% if favorites %}
-                <div class="row">
-                    {% for fav in favorites %}
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">{{ fav.city.name }}</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <p><strong>宜居评分:</strong> 
-                                                <span class="badge bg-success">{{ fav.score|floatformat:1 }}</span>
-                                            </p>
-                                            <p><strong>安全指数:</strong> {{ fav.data.static_data.safety_index }}</p>
-                                            <p><strong>医疗指数:</strong> {{ fav.data.static_data.health_index }}</p>
-                                            <p><strong>生活成本:</strong> {{ fav.data.static_data.cost_of_living }}</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <p><strong>当前温度:</strong> {{ fav.data.live_data.temp }}°C</p>
-                                            <p><strong>空气质量:</strong> {{ fav.data.live_data.aqi }}</p>
-                                            <p><strong>天气:</strong> {{ fav.data.live_data.weather_desc }}</p>
-                                            <p><small>收藏时间: {{ fav.date_added|date:"Y-m-d H:i" }}</small></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="btn-group" role="group">
-                                        <a href="{% url 'liveability:dashboard' fav.city.name 'London' %}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-chart-line"></i> 对比分析
-                                        </a>
-                                        <a href="{% url 'liveability:remove_favorite' fav.city.name %}" 
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('确定要从收藏中移除 {{ fav.city.name }} 吗？')">
-                                            <i class="fas fa-trash"></i> 移除
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+            <div class="card-body">
+                <div class="row g-3 mt-1">
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="bi bi-shield-check text-success me-1"></i>安全 Security</small>
+                        <strong class="fs-5">{{ fav.data.static_data.safety_index }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="bi bi-heart-pulse text-danger me-1"></i>医疗 Health</small>
+                        <strong class="fs-5">{{ fav.data.static_data.health_index }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="bi bi-thermometer-half text-warning me-1"></i>气温 Temp</small>
+                        <strong class="fs-5">{{ fav.data.live_data.temp }}°C</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="bi bi-wind text-info me-1"></i>空气 AQI</small>
+                        <strong class="fs-5">{{ fav.data.live_data.aqi }}</strong>
+                    </div>
                 </div>
-            {% else %}
-                <div class="alert alert-info text-center">
-                    <h4>暂无收藏城市</h4>
-                    <p>开始探索城市并添加您感兴趣的城市到收藏夹吧！</p>
-                    <a href="{% url 'liveability:index' %}" class="btn btn-primary mt-2">
-                        浏览城市
-                    </a>
-                </div>
-            {% endif %}
+            </div>
+            
+            <div class="card-footer bg-light border-0 rounded-bottom-4 p-3 d-flex justify-content-between">
+                <a href="{% url 'liveability:city_detail' fav.city.name %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3">
+                    <i class="bi bi-bar-chart-fill me-1"></i> 详情分析
+                </a>
+                <a href="{% url 'liveability:remove_favorite' fav.city.name %}" class="btn btn-sm btn-outline-danger border-0 rounded-pill" onclick="return confirm('确定要移除 {{ fav.city.name }} 吗？')">
+                    <i class="bi bi-trash3-fill"></i>
+                </a>
+            </div>
         </div>
     </div>
+    {% endfor %}
 </div>
+{% else %}
+<div class="text-center py-5 mt-5">
+    <i class="bi bi-folder2-open display-1 text-muted opacity-50 mb-3 d-block"></i>
+    <h3 class="fw-bold text-dark">暂无收藏城市</h3>
+    <p class="text-muted">您的收藏夹空空如也，快去探索感兴趣的城市吧！</p>
+    <a href="{% url 'liveability:city_search' %}" class="btn btn-primary btn-lg rounded-pill px-5 mt-3 shadow-sm">开始探索</a>
+</div>
+{% endif %}
 {% endblock %}
