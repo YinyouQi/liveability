@@ -15,7 +15,6 @@ class City(models.Model):
 
 
 class CityData(models.Model):
-    """城市实时数据（来自 API，做缓存用）"""
     city = models.ForeignKey(City, on_delete=models.CASCADE)
 
     temperature = models.FloatField()
