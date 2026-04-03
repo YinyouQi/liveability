@@ -70,8 +70,8 @@ def city_search(request):
             'search_results': cities_data,
             'search_performed': search_performed,
             'result_count': len(cities_data),
-            'city_list': city_list,  # 确保这一行有逗号
-        })  # ← 这里确保括号正确闭合
+            'city_list': city_list,  #
+        })  # 这里确保括号正确闭合
     
     # 如果没有搜索词，显示空页面
     return render(request, 'liveability/city_search.html', {
