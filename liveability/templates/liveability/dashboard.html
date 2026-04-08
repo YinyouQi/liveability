@@ -24,7 +24,7 @@
             <div class="badge rounded-pill bg-primary shadow-sm px-3 py-2 d-flex align-items-center">
                 <span class="fs-6 fw-bold text-white">{{ city1 }}</span>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'liveability:'|add:city1|add:'_favorite' %}" class="ms-2 text-white opacity-75 hover-opacity-100">
+                    <a href="{% url 'liveability:add_favorite' city1 %}" class="ms-2 text-white opacity-75 hover-opacity-100">
                         {% if is_favorited1 %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
                     </a>
                 {% endif %}
@@ -39,7 +39,7 @@
             <div class="badge rounded-pill bg-danger shadow-sm px-3 py-2 d-flex align-items-center">
                 <span class="fs-6 fw-bold text-white">{{ city2 }}</span>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'liveability:'|add:city2|add:'_favorite' %}" class="ms-2 text-white opacity-75 hover-opacity-100">
+                    <a href="{% url 'liveability:add_favorite' city2 %}" class="ms-2 text-white opacity-75 hover-opacity-100">
                         {% if is_favorited2 %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
                     </a>
                 {% endif %}
